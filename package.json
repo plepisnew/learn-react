@@ -1,0 +1,29 @@
+{
+  "name": "noideatbh",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "devStart": "SET NODE_ENV=development& nodemon index.js -e js,html,css",
+    "git-add": "git add .",
+    "git-commit-deploy": "git commit -m 'Deployment'",
+    "git-push-deploy": "git push heroku main",
+    "deploy": "npm run git-add && npm run git-commit-deploy && npm run git-push-deploy"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "express": "^4.17.3",
+    "express-handlebars": "^6.0.6",
+    "moment": "^2.29.3",
+    "mongoose": "^6.3.3",
+    "morgan": "^1.10.0",
+    "three": "^0.140.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}

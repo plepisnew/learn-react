@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pogulum</title>
+    <link rel="stylesheet" href="/css/pogulum.css" />
+    <script src="/js/pogulum.js" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Rubik:wght@300;400;500&family=Source+Sans+Pro:wght@200;300;400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body style="overflow: hidden">
+    <div class="left-panel">
+      <div class="icon-container">
+        <img class="icon-image" src="/images/tcs.png" />
+        <a href="http://github.com/plepisnew/pogulum" target="_blank">
+          <img class="github-image" src="/images/github.png" />
+        </a>
+      </div>
+      <div class="about-container">
+        <p class="about">
+          <span class="emph">About:</span> Twitch Clip finder, filterer,
+          concatenator, uploader.
+        </p>
+        <p class="usage">
+          <span class="emph">How to use:</span>
+        </p>
+        <p class="usage">
+          1. Find clips based on Category, Twitch Username OR Clip ID
+        </p>
+        <p class="usage">2. Scroll through the chasm of clips</p>
+        <p class="usage">3. Select clips to merge</p>
+        <p class="usage">4. Download .mp4 file OR upload to YouTube</p>
+      </div>
+      <div class="user-container">
+        <div class="input-container">
+          <input
+            id="category-input"
+            class="user-input"
+            type="text"
+            placeholder="Category"
+          />
+          <input
+            id="username-input"
+            class="user-input"
+            type="text"
+            placeholder="Twitch Username"
+          />
+          <input
+            id="clip-input"
+            class="user-input"
+            type="text"
+
+            placeholder="Clip ID"
+          />
+          <button id="find-clips" class="search-button">Find clips</button>
+        </div>
+
+        <div class="popular-paragraphs">
+          <p class="popular-games">Popular Games</p>
+          <p class="popular-channels">Popular Channels</p>
+        </div>
+
+        <div class="game-selection">
+          <div class="game-grid">
+            <img
+              class="clickable-game"
+              id="chatting"
+              src="/images/games/chatting.jpg"
+            />
+            <img
+              class="clickable-game"
+              id="fortnite"
+              src="/images/games/fortnite.jpg"
+            />
+            <img
+              class="clickable-game"
+              id="apex"
+              src="/images/games/apex-legends.jpg"
+            />
+            <img
+              class="clickable-game"
+              id="elden"
+              src="/images/games/elden-ring.jpg"
+            />
+            <img
+              class="clickable-game"
+              id="hearthstone"
+              src="/images/games/hearthstone.jpg"
+            />
+            <img class="clickable-game" id="lol" src="/images/games/lol.jpg" />
+            <img
+              class="clickable-game"
+              id="lost"
+              src="/images/games/lost-ark.jpg"
+            />
+            <img
+              class="clickable-game"
+              id="minecraft"
+              src="/images/games/minecraft.jpg"
+            />
+            <img
+              class="clickable-game"
+              id="valorant"
+              src="/images/games/valorant.jpg"
+            />
+            <img
+              class="clickable-game"
+              id="amogus"
+              src="/images/games/amogus.jpg"
+            />
+            <img class="clickable-game" id="csgo" src="/images/games/csgo.jpg" />
+            <img class="clickable-game" id="tft" src="/images/games/tft.jpg" />
+            <img class="clickable-game" id="fifa" src="/images/games/fifa.jpg" />
+            <img class="clickable-game" id="gtav" src="/images/games/gtav.jpg" />
+            <img
+              class="clickable-game"
+              id="yugioh"
+              src="/images/games/yugioh.jpg"
+            />
+            <img class="clickable-game" id="dbd" src="/images/games/dbd.jpg" />
+            <img
+              class="clickable-game"
+              id="overwatch"
+              src="/images/games/overwatch.jpg"
+            />
+            <img
+              class="clickable-game"
+              id="genshin"
+              src="/images/games/genshin.jpg"
+            />
+          </div>
+        </div>
+        <div class="channel-selection">
+          <div style="display: inline-block">
+            <div class="channel-grid">
+              <img
+                class="clickable-channel"
+                id="anomaly"
+                src="/images/channels/anomaly.jpg"
+              />
+              <img
+                class="clickable-channel"
+                id="brownman"
+                src="/images/channels/brownman.jpg"
+              />
+              <img
+                class="clickable-channel"
+                id="ninja"
+                src="/images/channels/ninja.jpg"
+              />
+              <img
+                class="clickable-channel"
+                id="shroud"
+                src="/images/channels/shroud.png"
+              />
+              <img
+                class="clickable-channel"
+                id="soda"
+                src="/images/channels/soda.png"
+              />
+              <img
+                class="clickable-channel"
+                id="summit"
+                src="/images/channels/summit.jpg"
+              />
+              <img
+                class="clickable-channel"
+                id="tyler"
+                src="/images/channels/tyler.png"
+              />
+              <img
+                class="clickable-channel"
+                id="xqc"
+                src="/images/channels/xqc.jpeg"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tooltip">
+      <div class="twitch-box">
+        <input
+          type="text"
+          class="twitch-id user-input"
+          placeholder="Twitch ID"
+        />
+        <input
+          type="text"
+          class="twitch-token user-input"
+          placeholder="Twitch Token"
+        />
+      </div>
+      <div class="youtube-box">
+        <input
+          type="text"
+          class="youtube-id user-input"
+          placeholder="YouTube ID"
+        />
+        <input
+          type="text"
+          class="youtube-token user-input"
+          placeholder="YouTube Token"
+        />
+      </div>
+    </div>
+    <div class="right-panel">
+      <div class="page-mover" style="display: flex; justify-content: center">
+        <!-- <input type="checkbox" class="toggle-edit" />Edit mode -->
+        <input
+          type="text"
+          class="title-filter user-input"
+          placeholder="Clip Title"
+        />
+        <button id="move-left" class="scroll-page">Scroll Left</button>
+        <button id="move-right" class="scroll-page">Scroll Right</button>
+      </div>
+      <div class="fetched-clips">
+        <div class="scroll-bg">
+          <div class="scroll drag-container" id="clip-scroller"></div>
+        </div>
+      </div>
+      <div class="divider">
+        <p class="about"><span class="emph">Selected Clips:</span></p>
+      </div>
+      <div class="edit-panel">
+        <div class="selected-videos drag-container"></div>
+        <div class="buttons">
+          <button class="download video">Download MP4</button>
+          <button class="download upload">Upload to YouTube</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

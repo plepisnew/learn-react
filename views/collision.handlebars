@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500&family=Source+Sans+Pro:wght@200;300;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/collision.css" />
+    <script src="/js/collision.js" defer></script>
+    <title>Collisions</title>
+  </head>
+  <body>
+    <div class="action">
+      <canvas class="action-canvas"> </canvas>
+    </div>
+    <div class="control">
+
+
+      <div class="selected-shape">
+
+        <div class="shape-canvas-container">
+
+          <p class="selector-title">Selected shape:</p>
+          <canvas class="shape-canvas"></canvas>
+
+        </div><div class="shape-edit">
+          <div class="user-input-container">
+            <span class="collision-span">μ = </span><input type="text" class="friction-input" placeholder="Friction"><span class="collision-span">units</span>
+          </div>
+          <div class="user-input-container">
+            <span class="collision-span">ρ = </span><input type="text" class="density-input" placeholder="Material Density"><span class="collision-span">kg/m<sup>3</sup></span>
+          </div>
+          <div class="user-input-container">
+            <span class="collision-span">R = </span><input type="text" class="radius-input" placeholder="Object Radius"><span class="collision-span">m</span>
+          </div>
+          <div class="user-input-container">
+            <span class="collision-span">g = </span><input type="text" class="gravity-input" placeholder="Gravitational accel."><span class="collision-span">m/s<sup>2</sup></span>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="control-action">
+        <div class="selector">
+          <p class="selector-title">Initial X coordinate</p>
+          <span class="min-selection x-selection">0</span
+          ><input
+            type="range"
+            class="x-slider slider"
+            min="1"
+            max="100"
+            value="50"
+          /><span class="max-selection x-selection">100</span>
+        </div>
+        <div class="selector">
+          <p class="selector-title">Initial Y coordinate</p>
+          <span class="min-selection y-selection">0</span
+          ><input
+            type="range"
+            class="y-slider slider"
+            min="1"
+            max="100"
+            value="50"
+          /><span class="max-selection y-selection">100</span>
+        </div>
+        <div class="selector">
+          <p class="selector-title">Radius R of circle</p>
+          <span class="min-selection r-selection">0</span
+          ><input
+            type="range"
+            class="r-slider slider"
+            min="1"
+            max="50"
+            value="25"
+          /><span class="max-selection r-selection">50</span>
+        </div>
+        <div class="selector">
+          <p class="selector-title">Color fill of circle</p>
+          <input
+            type="range"
+            class="color-slider slider"
+            min="1"
+            max="10"
+            value="0"
+          />
+        </div>
+        <div class="button-container">
+          <button class="preview-shape">Preview</button>
+          <button class="spawn-shape">Spawn</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

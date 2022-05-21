@@ -12,7 +12,7 @@ const logger = (req, res, next) => {
 }
 
 // Logger file stream
-const logFile = fs.createWriteStream('./log/test.log', {
+const logFile = fs.createWriteStream('./log/request.log', {
     flags: 'a'
 })
 

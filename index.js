@@ -18,7 +18,7 @@ app.set('json spaces', 2);
 // Middleware (JSON parse, static folder, logger)
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-// app.use(morgan('combined', { stream: logFile }));
+app.use(morgan('combined', { stream: logFile }));
 
 app.use('/build/', express.static(path.join(__dirname, 'node_modules/three/build')));
 app.use('/jsm/', express.static(path.join(__dirname, 'node_modules/three/examples/jsm')));

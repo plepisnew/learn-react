@@ -1,8 +1,6 @@
 #bg {
-    position: fixed;
-    top: 60px;
-    left: 0;
-    outline: none;
+
+    background: white;
 }
 
 * {
@@ -10,7 +8,74 @@
     padding: 0;
 }
 
+
 html, body {
-    height: 100vh;
     font-family: 'Poppins';
+}
+
+body {
+    overflow: hidden;
+}
+
+.config-bar{
+    position: fixed;
+    background: rgb(50, 50, 50);
+    height: 100%;
+    width: 20%;
+    top: 60px;
+    left: 0;
+    border-right: 2px solid black;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 15px;
+    color: white;
+}
+
+.config-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.number-input {
+    width: 20%;
+    padding: 0;
+    font-family: 'Poppins';
+    outline: none;
+    background: none;
+    border: none;
+    border-bottom: 1px solid white;
+    color: white;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    /* font-size: 14px; */
+    margin: 3px;
+}
+
+.config-title {
+    font-weight: 600;
+    margin: 5px;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.info-dialog {
+    background: rgb(80, 80, 80);
+    border-radius: 5px;
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+    font-size: 13px;
 }

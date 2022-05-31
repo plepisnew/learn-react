@@ -12,7 +12,7 @@ Projects
 
 - [`/tetris`](http://plepis.herokuapp.com/projects/tetris) [(W](https://github.com/plepisnew/learn-js/wiki/Tetris) : Better than the previous one
 
-- [`/rubiks`](http://plepis.herokuapp.com/projects/rubiks) [(W)](https://github.com/plepisnew/learn-js/wiki/Rubiks) : Rubiks Cube simulator and solver
+- [`/rubiks`](http://plepis.herokuapp.com/projects/rubiks) [(W)](https://github.com/plepisnew/learn-js/wiki/Rubiks-Cube-Solver) : Rubiks Cube simulator and solver
 
 Tech Stack:
 -

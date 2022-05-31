@@ -69,6 +69,7 @@ document.querySelector('.spawn-cube').onclick = () => {
     onCubeChange();
     clearScene();
     cube = new RubiksCube(debug.dimensions, debug.maxCubeSize / debug.dimensions);
+    console.log(cube);
 
 }
 
@@ -186,7 +187,7 @@ class RubiksCube {
                     (rowIndex == 0 || rowIndex == dimension - 1) ||
                     (colIndex == 0 || colIndex == dimension - 1);
 
-                    let id = isShell ? `${plateIndex}${rowIndex}${colIndex}` : 'XXX';
+                    let id = isShell ? `${plateIndex} ${rowIndex} ${colIndex}` : 'XXX';
                     let cube = generateCubicle(id, dimension, cellSize);
                     let col = new MatrixEntry(id, cube.combo, cube.mesh);
                     // row.push(col);
@@ -212,7 +213,7 @@ class RubiksCube {
                 row.forEach(col => {
                     if(col.mesh != null) {
                         let pos = col.mesh.position;
-                        let coords = col.identifier.split('');
+                        let coords = col.identifier.split(' ');
                         xMatch = xMatch && pos.x == parseInt(coords[1]*this.cellSize);
                         yMatch = yMatch && pos.y == parseInt(coords[0]*this.cellSize);
                         zMatch = zMatch && pos.z == parseInt(coords[2]*this.cellSize);
@@ -346,7 +347,7 @@ const generateCubicle = (id, dimension, cellSize) => {
         }
     }
     let combo = '';
-    const coordinateArray = id.split('');
+    const coordinateArray = id.split(' ');
     
     var [ height, depth, width ] = [ coordinateArray[0], coordinateArray[1], coordinateArray[2] ];
 
@@ -376,14 +377,14 @@ const updateMatrix = () => {
             row.forEach((col, colIndex) => {
                 if(col.mesh == null) return;
                 let pos = col.mesh.position;
-                let positionIdentifier = `${Math.round(pos.y)/10}${Math.round(pos.z)/10}${Math.round(pos.x)/10}`;
-                let identifier = `${plateIndex}${rowIndex}${colIndex}`;
-                let arr = identifier.split('').map(str => parseInt(str));
+                let positionIdentifier = `${Math.round(pos.y/cube.cellSize)} ${Math.round(pos.z/cube.cellSize)} ${Math.round(pos.x/cube.cellSize)}`;
+                let identifier = `${plateIndex} ${rowIndex} ${colIndex}`;
+                let arr = identifier.split(' ').map(str => parseInt(str));
                 if(positionIdentifier != identifier) sussyBakas.push(cube.matrix[arr[0]][arr[1]][arr[2]]);
             });
         });
     });
-    console.log(sussyBakas);
+    // console.log(sussyBakas);
     sussyBakas.forEach(sussyBaka => {
         let pos = sussyBaka.mesh.position;
         let height = Math.round(pos.y/debug.maxCubeSize * debug.dimensions);
@@ -518,7 +519,7 @@ const texture = {
 
 const materialOf = (geometry, id, dimension) => {
 
-    const coordinateArray = id.split('');
+    const coordinateArray = id.split(' ');
     var [ height, depth, width ] = [ coordinateArray[0], coordinateArray[1], coordinateArray[2] ];
     const material = [];
 

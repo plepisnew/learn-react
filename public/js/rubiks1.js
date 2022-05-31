@@ -572,12 +572,12 @@ const shiftArray = (arr, num) => {
     }
 }
 
-const algorithmInput = document.querySelector('.algorithm-input');
-algorithmInput.onkeydown = (e) => {
-    if(e.key == 'Enter') {
-        let input = algorithmInput.value;
-        algo(input);
-    } 
-}
+// const algorithmInput = document.querySelector('.algorithm-input');
+// algorithmInput.onkeydown = (e) => {
+//     if(e.key == 'Enter') {
+//         let input = algorithmInput.value;
+//         algo(input);
+//     } 
+// }
 
 init();

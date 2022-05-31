@@ -5,6 +5,42 @@
 <div class="config-bar">
     
     <div class="config-item">
+        <p class="config-title">Rubiks Cube</p>
+        <div class="input-container">
+            <span>Cube Size:</span><input class="number-input dimension-input" type="number"><span>cubed</span>
+        </div>
+
+        <div class="input-container">
+            <span>Cube Size:</span><input class="number-input size-input" type="number"><span>units</span>
+        </div>
+        <div class="input-container">
+            <span>Omega:</span><input class="number-input omega-input" type="number"><span>rad/s</span>
+        </div>
+        <div class="input-container">
+            <span>Stickerless:</span><input class="number-input" type="number"><span>units</span>
+        </div>
+
+        <div class="button-container">
+            <button class="submit-input spawn-cube">
+                Spawn Cube
+            </button>
+
+            <button class="submit-input solve-cube">
+                Solve Cube
+            </button>
+        </div>
+
+        <div class="info-dialog">
+            <div class="expand-dialog">
+                <p>????????????????</p>
+            </div>
+            <div class="dialog-content">
+                <p>💡 Select the size (cubicles per dimension), cube size (width of whole cube), omega (face rotation angular speed) and whether you wan't a Stickerless cube, then spawn it. Default values (3, 60, Math.PI, false)</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="config-item">
         <p class="config-title">Camera Configuration 📷</p>
         <div class="input-container">
             <span>Camera X Position:</span><input class="camera-x-input number-input" type="number"><span>units</span>
@@ -17,12 +53,24 @@
             <span>Camera Z Position:</span><input class="camera-z-input number-input" type="number"><span>units</span>
         </div>
         <div class="input-container">
-            <span>Movement Step:</span><input class="camera-step-input number-input" type="number"><span>units</span>
+            <span>Zoom Step:</span><input class="camera-zoom-input number-input" type="number"><span>units</span>
+        </div>
+        <div class="input-container">
+            <span>Rotation Step:</span><input class="camera-rotation-input number-input" type="number"><span>units</span>
         </div>
 
         <div class="info-dialog">
-            <p>💡 To move the camera around, you can also hold X, Y, Z on your keyboard and simultaneously use the scrolling wheel to move along the respective axis/axes.</p>
+            <div class="expand-dialog">
+                <p>????????????????</p>
+            </div>
+            <div class="dialog-content">
+                <p>💡 Use Arrow Keys to move the camera around, and the scrolling wheel to zoom in/out. Zoom and rotation steps indicate the smallest possible change in the camera's rotation and movement.</p>
+            </div>
         </div>
+        <p>'(U|D|L|R|F|B) (1..DIM) (1+)'</p>
+        <p>'face layers_to_rotate times_to_rotate_90_deg'</p>
+        
+        <input type="text" class="algorithm">
     </div>
 
 </div>

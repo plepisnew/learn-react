@@ -29,8 +29,13 @@ body {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    padding: 15px;
+    padding: 10px;
     color: white;
+    overflow-y: scroll;
+}
+
+.config-bar::-webkit-scrollbar {
+    display: none;
 }
 
 .config-item {
@@ -71,11 +76,58 @@ input[type=number]::-webkit-outer-spin-button {
     appearance: none;
 }
 
+.config-item {
+    margin-bottom: 10px;
+}
+
+.submit-input {
+    margin: 5px;
+    border: none;
+    background: rgb(80, 80, 80);
+    color: white;
+    font-family: 'Poppins';
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    flex: 1;
+    cursor: pointer;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.submit-input:active {
+    box-shadow: none;
+
+}
+
 .info-dialog {
     background: rgb(80, 80, 80);
     border-radius: 5px;
-    width: 100%;
-    padding: 5px;
     margin-top: 5px;
     font-size: 13px;
+    overflow: hidden;
+}
+
+.expand-dialog {
+    padding: 5px;
+    cursor: pointer;
+    background: rgb(65, 65, 65);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.expand-dialog:hover + .dialog-content{
+    height: 100px;
+}
+
+.dialog-content {
+    margin: 5px;
+    height: 0;
+    overflow: hidden;
+    height: 0;
+    transition: height 0.9s;
 }

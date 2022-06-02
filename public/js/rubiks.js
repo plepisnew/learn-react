@@ -13,7 +13,7 @@ const renderer = new THREE.WebGLRenderer({
 });
 
 const algoInput = document.querySelector('.algorithm');
-algoInput.onkeydown = (e) => {
+algoInput.onkeydown = async (e) => {
     if(e.key === 'Enter') {
         const input = algoInput.value;
         const args = input.split(' ');
@@ -37,6 +37,7 @@ const debug = {
 }
 
 var cube;
+var scrambler;
 
 const init = () => {
     window.onresize = onresize;
@@ -50,8 +51,11 @@ const init = () => {
     let dimensions = debug.dimensions;
     cube = new RubiksCube(dimensions, debug.maxCubeSize / dimensions);
     console.log(cube);
-    if(cube.isSolved()) console.log('cube solved')
 
+    scrambler = new Scrambler();
+    console.log(scrambler);
+
+    if(cube.isSolved()) console.log('cube solved')
     animate();
 }
 
@@ -67,10 +71,24 @@ document.querySelector('.spawn-cube').onclick = () => {
     if(!sizeInput.value) debug.maxCubeSize = 60;
     if(!omegaInput.value) debug.omega = Math.PI;
     onCubeChange();
+    rotationQueue = [];
     clearScene();
     cube = new RubiksCube(debug.dimensions, debug.maxCubeSize / debug.dimensions);
     console.log(cube);
 
+}
+
+document.querySelector('.solve-cube').onclick = () => {
+    solveCurrentCube();
+}
+
+document.querySelector('.scramble-cube').onclick = () => {
+    scrambler.createScrambleMoves(numberOfScrambles(cube.dimension));
+    scrambler.notify();
+}
+
+const numberOfScrambles = (dimension) => {
+    return Math.round(Math.sqrt(cube.dimension * 130))
 }
 
 const clearScene = () => {
@@ -106,7 +124,37 @@ const animate = () => {
     frame++;
 }
 
-const rotationQueue = [];
+class Scrambler {
+
+    constructor() {
+        this.moves = [];
+    }
+
+    // Improve logic for generating moves
+    createScrambleMoves(moves) {
+        for(let i = 0; i < moves; i++) {
+            let items = Array.from(faceVector);
+            let arr = items[Math.floor(Math.random()*items.length)];
+            let layers = Math.floor(Math.random()*(cube.dimension-1) + 1);
+            this.moves.push({
+                face: arr[0],
+                layers,
+                count: 1,
+            });
+        }
+    }
+    
+    notify() {
+        let move = this.moves.shift();
+        if(move) this.scheduleMove(move);
+    }
+
+    scheduleMove(move) {
+        rotateCube(move.face, move.layers, move.count);
+    }
+}
+
+var rotationQueue = [];
 
 const faceVector = new Map([
     ['U', new THREE.Vector3(0, -1, 0)],
@@ -115,7 +163,13 @@ const faceVector = new Map([
     ['R', new THREE.Vector3(-1, 0, 0)],
     ['F', new THREE.Vector3(0, 0, -1)],
     ['B', new THREE.Vector3(0, 0, 1)],
-])
+    [`U'`, new THREE.Vector3(0, 1, 0)],
+    [`D'`, new THREE.Vector3(0, -1, 0)],
+    [`L'`, new THREE.Vector3(-1, 0, 0)],
+    [`R'`, new THREE.Vector3(1, 0, 0)],
+    [`F'`, new THREE.Vector3(0, 0, 1)],
+    [`B'`, new THREE.Vector3(0, 0, -1)],
+]);
 // add matrix logic
 const rotateCube = (face, count, times) => {
     if(count > debug.dimensions) return;
@@ -128,6 +182,7 @@ const rotateCube = (face, count, times) => {
             angle: 0,
             axis: faceVector.get(face.toUpperCase()),
             point: getAxisPoint(cube.dimension),
+            face,
         }
         rotationQueue.push(rotation);
     }
@@ -141,14 +196,16 @@ const handleCubeRotations = (dt) => {
         let trueTheta = Math.min(rotation.end - rotation.angle, theta);
         rotation.angle += trueTheta;
         rotateAboutAxisAll(
-            rotation.objects,
+            rotation.objects.map(object => object.mesh),
             trueTheta,
             rotation.axis,
             rotation.point
         );
     } else {
         updateMatrix();
+        updateColorString(rotation.objects, rotation.face);
         rotationQueue.shift();
+        scrambler.notify();
     }
 }
 
@@ -228,13 +285,14 @@ class RubiksCube {
         const rotatables = [];
         switch(face.toUpperCase()) {
             case 'U':
+            case `U'`:
                 for(let height = 0; height < count; height++) {
                     let cubeHeight = (this.dimension - 1) - height;
                     for(let depth = 0; depth < this.dimension; depth++) {
                         for(let width = 0; width < this.dimension; width++) {
                             let element = this.matrix[cubeHeight][depth][width]
                             if(element) {
-                                let cube = element.mesh;
+                                let cube = element;
                                 rotatables.push(cube);
                             }
                         }
@@ -242,12 +300,13 @@ class RubiksCube {
                 }
                 return rotatables;
             case 'D':
+            case `D'`:
                 for(let height = 0; height < count; height++) {
                     for(let depth = 0; depth < this.dimension; depth++) {
                         for(let width = 0; width < this.dimension; width++) {
                             let element = this.matrix[height][depth][width]
                             if(element) {
-                                let cube = element.mesh;
+                                let cube = element;
                                 rotatables.push(cube);
                             }
                         }
@@ -255,12 +314,13 @@ class RubiksCube {
                 }
                 return rotatables;
             case 'L':
+            case `L'`:
                 for(let width = 0; width < count; width++) {
                     for(let height = 0; height < this.dimension; height++) {
                         for(let depth = 0; depth < this.dimension; depth++) {
                             let element = this.matrix[height][depth][width]
                             if(element) {
-                                let cube = element.mesh;
+                                let cube = element;
                                 rotatables.push(cube);
                             }
                         }
@@ -268,13 +328,14 @@ class RubiksCube {
                 }
                 return rotatables;
             case 'R':
+            case `R'`:
                 for(let width = 0; width < count; width++) {
                     let cubeWidth = (this.dimension - 1) - width;
                     for(let height = 0; height < this.dimension; height++) {
                         for(let depth = 0; depth < this.dimension; depth++) {
                             let element = this.matrix[height][depth][cubeWidth]
                             if(element) {
-                                let cube = element.mesh;
+                                let cube = element;
                                 rotatables.push(cube);
                             }
                         }
@@ -282,13 +343,14 @@ class RubiksCube {
                 }
                 return rotatables;
             case 'F':
+            case `F'`:
                 for(let depth = 0; depth < count; depth++) {
                     let cubeDepth = (this.dimension - 1) - depth;
                     for(let height = 0; height < this.dimension; height++) {
                         for(let width = 0; width < this.dimension; width++) {
                             let element = this.matrix[height][cubeDepth][width]
                             if(element) {
-                                let cube = element.mesh;
+                                let cube = element;
                                 rotatables.push(cube);
                             }
                         }
@@ -296,12 +358,13 @@ class RubiksCube {
                 }
                 return rotatables;
             case 'B':
+            case `B'`:
                 for(let depth = 0; depth < count; depth++) {
                     for(let height = 0; height < this.dimension; height++) {
                         for(let width = 0; width < this.dimension; width++) {
                             let element = this.matrix[height][depth][width]
                             if(element) {
-                                let cube = element.mesh;
+                                let cube = element;
                                 rotatables.push(cube);
                             }
                         }
@@ -311,7 +374,29 @@ class RubiksCube {
         }
     }
 
-    findCorner(){}
+    //solveCurrentCube
+
+    findCorners(color){
+        let corners = [];
+        this.matrix.forEach((plate, plateIndex) => {
+            plate.forEach((row, rowIndex) => {
+                row.forEach((col, colIndex) => {
+                    if(color == 'any' || col.colorString.includes(color)) {
+                        corners.push({
+                            col,
+                            pos: {
+                                height: plateIndex,
+                                depth: colIndex,
+                                width: rowIndex,
+                            },
+                            rot: col.mesh.rotation,
+                        });
+                    }
+                });
+            });
+        });
+        return corners;
+    }
     findEdge(){}
     findCenter(){}
 }
@@ -338,6 +423,13 @@ class MatrixEntry {
     }
 }
 
+/**
+ * Generates the color string, material, geometry and mesh for a single cubicle.
+ * @param {string} id - space separated identifier of cube e.g. 5 6 5 
+ * @param {number} dimension - number of cubicles per dimension
+ * @param {number} cellSize - width of a single cubicle
+ * @returns {
+ */
 const generateCubicle = (id, dimension, cellSize) => {
     if(id == 'XXX') {
         if(debug.logCubicleCreation) console.log(`Creating Shallow Cubicle ${id}`)
@@ -369,8 +461,57 @@ const generateCubicle = (id, dimension, cellSize) => {
     }
 }
 
+const updateColorString = (objects, face) => {
+    objects.forEach(object => {
+        let requiredRotations = colorStringRotation.filter(arr => arr[0] == face.toUpperCase());
+        let [firstIndex, secondIndex, thirdIndex, fourthIndex] = [
+            object.colorString.indexOf(requiredRotations[0][1]),
+            object.colorString.indexOf(requiredRotations[1][1]),
+            object.colorString.indexOf(requiredRotations[2][1]),
+            object.colorString.indexOf(requiredRotations[3][1])
+        ];
+        if(firstIndex != -1) object.colorString = replace(object.colorString, firstIndex, requiredRotations[0][2]);
+        if(secondIndex != -1) object.colorString = replace(object.colorString, secondIndex, requiredRotations[1][2])
+        if(thirdIndex != -1) object.colorString = replace(object.colorString, thirdIndex, requiredRotations[2][2])
+        if(fourthIndex != -1) object.colorString = replace(object.colorString, fourthIndex, requiredRotations[3][2])
+    });
+}
+
+const colorStringRotation = [
+    ['L', 'U', 'F'],
+    ['L', 'D', 'B'],
+    ['L', 'F', 'D'],
+    ['L', 'B', 'U'],
+
+    ['R', 'U', 'B'],
+    ['R', 'D', 'F'],
+    ['R', 'F', 'U'],
+    ['R', 'B', 'D'],
+
+    ['U', 'L', 'B'],
+    ['U', 'R', 'F'],
+    ['U', 'F', 'L'],
+    ['U', 'B', 'R'],
+
+    ['D', 'L', 'F'],
+    ['D', 'R', 'B'],
+    ['D', 'F', 'R'],
+    ['D', 'B', 'L'],
+
+    ['F', 'L', 'U'],
+    ['F', 'R', 'D'],
+    ['F', 'U', 'R'],
+    ['F', 'D', 'L'],
+
+    ['B', 'L', 'D'],
+    ['B', 'R', 'U'],
+    ['B', 'U', 'L'],
+    ['B', 'D', 'R'],
+
+    
+]
+
 const updateMatrix = () => {
-    console.log('Updating cube matrix')
     const sussyBakas = [];
     cube.matrix.forEach((plate, plateIndex) => {
         plate.forEach((row, rowIndex) => {
@@ -384,7 +525,6 @@ const updateMatrix = () => {
             });
         });
     });
-    // console.log(sussyBakas);
     sussyBakas.forEach(sussyBaka => {
         let pos = sussyBaka.mesh.position;
         let height = Math.round(pos.y/debug.maxCubeSize * debug.dimensions);
@@ -392,110 +532,6 @@ const updateMatrix = () => {
         let width = Math.round(pos.x/debug.maxCubeSize * debug.dimensions);
         cube.matrix[height][depth][width] = sussyBaka;
     })
-}
-
-// const rotateMatrix = (face, layers) => {
-//     // console.log(face, layers);
-//     let dimension = cube.matrix.length;
-//     switch(face.toUpperCase()) {
-//         case 'U':
-//             for(let layer = 0; layer < layers; layer++) {
-//                 let cubeLayer = (dimension - 1) - layer;
-//                 rotateMatrixAboutCenter(cube.matrix[cubeLayer]);
-//             }
-//             break;
-//         case 'D':
-//             for(let layer = 0; layer < layers; layer++) {
-//                 rotateMatrixAboutCenterCCW(cube.matrix[layer]);
-//             }
-//             break;
-//         case 'L':
-            
-//             break;
-//         case 'R':
-//             let slice = [];
-//             for(let height = 0; height < dimension; height++) {
-//                 let row = [];
-//                 for(let depth = 0; depth < dimension; depth++) {
-//                     row.push(cube.matrix[height][depth][dimension - 1])
-//                 }
-//                 slice.push(row);
-//             }
-
-//             // let stuff = clone(slice);
-//             // console.log(stuff);
-//             // rotateMatrixAboutCenter(slice);
-//             // console.log(slice);
-//             // // rotateMatrixAboutCenterCCW(slice);
-//             // // let stuff = clone(cube.matrix);
-//             // copyMatrixToCube(slice, 2);
-//             // // console.log(stuff);
-//             // // console.log(cube.matrix);
-//             break;
-//         case 'F':
-//             break;
-//         case 'B':
-//             break;
-//     }
-// }
-
-const rotateMatrixAboutCenter = (matrix) => {
-    let shells = matrix.length % 2 == 0 ? matrix.length/2 : Math.floor(matrix.length/2);
-    for(let shell = 0; shell < shells; shell++) {
-        let shellArray = [];
-        let shift = matrix.length - 2*shell - 1;
-        for(let col = shell; col < matrix.length - shell; col++) {
-            shellArray.push(matrix[shell][col]);
-        } // top
-        for(let row = 1 + shell; row < matrix.length - 1 - shell; row++) {
-            shellArray.push(matrix[row][matrix.length - 1 - shell]);
-        } // right
-        for(let col = matrix.length - 1 - shell; col > shell; col--) {
-            shellArray.push(matrix[matrix.length - 1 - shell][col]);
-        } // bottom
-        for(let row = matrix.length - 1 - shell; row > shell; row--) {
-            shellArray.push(matrix[row][shell]);
-        } // left
-        shiftArray(shellArray, shift);
-        let shiftedElement = 0;
-        for(let col = shell; col < matrix.length - shell; col++) {
-            matrix[shell][col] = shellArray[shiftedElement];
-            shiftedElement++;
-        } // top
-        for(let row = 1 + shell; row < matrix.length - 1 - shell; row++) {
-            matrix[row][matrix.length - 1 - shell] = shellArray[shiftedElement];
-            shiftedElement++;
-        } // right
-        for(let col = matrix.length - 1 - shell; col > shell; col--) {
-            matrix[matrix.length - 1 - shell][col] = shellArray[shiftedElement];
-            shiftedElement++;
-        } // bottom
-        for(let row = matrix.length - 1 - shell; row > shell; row--) {
-            matrix[row][shell] = shellArray[shiftedElement];
-            shiftedElement++;
-        } // left
-    }
-}
-
-// const copyMatrixToCube = (matrix, copycat) => {
-//     matrix.forEach((row, rowIndex) => {
-//         row.forEach((col, colIndex) => {
-//             // let pos = matrix[rowIndex][colIndex].identifier.split('');
-//             let pos = [rowIndex, colIndex, 2]
-//             let duplicateCoordinate = parseInt(matrix[rowIndex][colIndex].identifier.charAt(copycat));
-//             console.log(duplicateCoordinate);
-//             console.log(`Changing ${rowIndex}${colIndex}${duplicateCoordinate} to ${rowIndex}${colIndex}`)
-//             if(copycat == 2) cube.matrix[rowIndex][colIndex][duplicateCoordinate] = matrix[rowIndex][colIndex];
-//             if(copycat == 1) cube.matrix[rowIndex][duplicateCoordinate][colIndex] = matrix[rowIndex][colIndex];
-//             if(copycat == 0) cube.matrix[duplicateCoordinate][rowIndex][colIndex] = matrix[rowIndex][colIndex];
-//         });
-//     });
-// }
-
-const rotateMatrixAboutCenterCCW = (matrix) => {
-    rotateMatrixAboutCenter(matrix);
-    rotateMatrixAboutCenter(matrix);
-    rotateMatrixAboutCenter(matrix);
 }
 
 const shiftArray = (arr, num) => {
@@ -676,6 +712,10 @@ const roundTo = (number, places) => {
     return Math.floor(number * Math.pow(10, places)) / Math.pow(10, places);
 }
 
+const replace = (str, index, replacement) => {
+    return str.substring(0, index) + replacement + str.substring(index + replacement.length);
+}
+
 // rotate(x).about(y);
 
 cameraStep.oninput = () => {
@@ -683,6 +723,22 @@ cameraStep.oninput = () => {
 }
 cameraStepMovement.oninput = () => {
     debug.cameraRotationStep = roundTo(cameraStepMovement.value, 3);
+}
+
+/**
+ * Rubiks Cube solving logic
+ */
+
+const solveCurrentCube = () => {
+    if(cube.dimension == 2) {
+        console.log(cube);
+        console.log(cube.findCorners('white'));
+
+    } else if (cube.dimension == 3) {
+
+    } else if (cube.dimension == 4) {
+
+    }
 }
 
 init();

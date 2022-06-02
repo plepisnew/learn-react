@@ -8,7 +8,7 @@ router.get('/', (req, res) => {
         layout: 'navbar',
         title: 'Tetris1',
         projects,
-    })
-})
+    });
+});
 
 module.exports = router;

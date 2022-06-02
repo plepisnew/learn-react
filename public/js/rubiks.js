@@ -628,6 +628,7 @@ const cameraStepMovement = document.querySelector('.camera-rotation-input');
 const algorithmSwitch = document.querySelector('.algorithm-switch');
 
 algorithmSwitch.oninput = () => {
+    console.log(algorithmSwitch.checked);
     debug.keyboardControls = algorithmSwitch.checked;
 }
 
@@ -655,7 +656,7 @@ solveCube.onclick = () => {
 }
 
 atomicMove.onkeydown = (e) => {
-    if(e.key === 'Enter') {
+if(e.key === 'Enter') {
         const input = atomicMove.value;
         const args = input.split(' ');
         rotateCube(args[0], parseInt(args[1]), parseInt(args[2]));

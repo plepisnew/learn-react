@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "SET NODE_ENV=development& nodemon index.js -e js,html,css",
+    "dev": "SET NODE_ENV=development& nodemon index.js -e js,html,css,handlebars",
     "git-add": "git add .",
     "git-commit-deploy": "git commit -m 'Deployment'",
     "git-push-deploy": "git push heroku main",

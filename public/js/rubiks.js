@@ -12,12 +12,39 @@ const renderer = new THREE.WebGLRenderer({
     canvas,
 });
 
-const algoInput = document.querySelector('.algorithm');
-algoInput.onkeydown = async (e) => {
+const atomicMove = document.querySelector('.atomic-move');
+atomicMove.onkeydown = (e) => {
     if(e.key === 'Enter') {
-        const input = algoInput.value;
+        const input = atomicMove.value;
         const args = input.split(' ');
-        rotateCube(args[0], parseInt(args[1]), parseInt(args[2]));
+        scrambler.addMove({
+            face: args[0],
+            layers: parseInt(args[1]),
+            count: parseInt(args[2]),
+        });
+        if(scrambler.moves.length == 1) scrambler.notify();
+        scrambleCube.setAttribute('disabled', 'true');
+    }
+}
+
+const longMove = document.querySelector('.long-move');
+longMove.onkeydown = (e) => {
+    if(e.key === 'Enter') {
+        const input = longMove.value;
+        const args = input.split(' ');
+        args.forEach(move => {
+            let face = move.length == 1 ? move.charAt(0) : move.charAt(1) == `'` ? move.substring(0, 2) : move.charAt(0); 
+            let count = move.length == 1 ? 1 : move.charAt(1) == `'` ? 1 : parseInt(move.charAt(1));
+            console.log(face, count);
+            scrambler.addMove({
+                face,
+                layers: 1,
+                count,
+            });
+        });
+        console.log(scrambler.moves);
+        if(scrambler.moves.length == args.length) scrambler.notify();
+        scrambleCube.setAttribute('disabled', 'true');
     }
 }
 
@@ -82,9 +109,12 @@ document.querySelector('.solve-cube').onclick = () => {
     solveCurrentCube();
 }
 
-document.querySelector('.scramble-cube').onclick = () => {
+const scrambleCube = document.querySelector('.scramble-cube');
+
+scrambleCube.onclick = () => {
     scrambler.createScrambleMoves(numberOfScrambles(cube.dimension));
     scrambler.notify();
+    scrambleCube.setAttribute('disabled', 'true');
 }
 
 const numberOfScrambles = (dimension) => {
@@ -132,6 +162,7 @@ class Scrambler {
 
     // Improve logic for generating moves
     createScrambleMoves(moves) {
+        this.moves = [];
         for(let i = 0; i < moves; i++) {
             let items = Array.from(faceVector);
             let arr = items[Math.floor(Math.random()*items.length)];
@@ -143,10 +174,18 @@ class Scrambler {
             });
         }
     }
+
+    addMove(move) {
+        this.moves.push(move);
+    }
     
     notify() {
         let move = this.moves.shift();
-        if(move) this.scheduleMove(move);
+        if(move) {
+            this.scheduleMove(move);
+        } else {
+            scrambleCube.removeAttribute('disabled');
+        }
     }
 
     scheduleMove(move) {
@@ -376,26 +415,29 @@ class RubiksCube {
 
     //solveCurrentCube
 
-    findCorners(color){
+    findCorners(color, layer){
         let corners = [];
         this.matrix.forEach((plate, plateIndex) => {
             plate.forEach((row, rowIndex) => {
                 row.forEach((col, colIndex) => {
                     if(color == 'any' || col.colorString.includes(color)) {
+                        let index = col.colorString.indexOf(color);
+                        let face = col.colorString.substring(index-2, index-1);
                         corners.push({
                             col,
                             pos: {
                                 height: plateIndex,
-                                depth: colIndex,
-                                width: rowIndex,
+                                depth: rowIndex,
+                                width: colIndex,
                             },
                             rot: col.mesh.rotation,
+                            face,
                         });
                     }
                 });
             });
         });
-        return corners;
+        return corners.filter(corner => corner.pos.height == layer);
     }
     findEdge(){}
     findCenter(){}
@@ -463,7 +505,10 @@ const generateCubicle = (id, dimension, cellSize) => {
 
 const updateColorString = (objects, face) => {
     objects.forEach(object => {
-        let requiredRotations = colorStringRotation.filter(arr => arr[0] == face.toUpperCase());
+        let requiredRotations = colorStringRotation.filter(arr => {
+            return arr[0] == face.toUpperCase() || likeRotations.get(face.toUpperCase()) == arr[0]
+            console.log(arr[0], face.toUpperCase(), likeRotations.get(face.toUpperCase()));
+        });
         let [firstIndex, secondIndex, thirdIndex, fourthIndex] = [
             object.colorString.indexOf(requiredRotations[0][1]),
             object.colorString.indexOf(requiredRotations[1][1]),
@@ -476,6 +521,15 @@ const updateColorString = (objects, face) => {
         if(fourthIndex != -1) object.colorString = replace(object.colorString, fourthIndex, requiredRotations[3][2])
     });
 }
+
+const likeRotations = new Map([
+    [`R'`, 'L'],
+    [`L'`, 'R'],
+    [`U'`, 'D'],
+    [`D'`, 'U'],
+    [`F'`, 'B'],
+    [`B'`, 'F'], 
+]);
 
 const colorStringRotation = [
     ['L', 'U', 'F'],
@@ -732,7 +786,14 @@ cameraStepMovement.oninput = () => {
 const solveCurrentCube = () => {
     if(cube.dimension == 2) {
         console.log(cube);
-        console.log(cube.findCorners('white'));
+        let bottomWhites = cube.findCorners('white', 0)
+        console.log(bottomWhites);
+        bottomWhites.forEach(piece => {
+            if(piece.face != 'D') {
+
+            }
+        });
+
 
     } else if (cube.dimension == 3) {
 

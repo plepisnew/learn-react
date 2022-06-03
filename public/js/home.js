@@ -178,7 +178,7 @@ const animationProp = {
 }
 
 const introductionAnimation = async (prop) => {
-    let randomWords = await fetch(host + '/api/words');
+    let randomWords = await fetch(`${host}/api/words/${prop.randomWordCount}`);
     let randomWordsJson = await randomWords.json();
     randomWordsJson.forEach(randomWord => animationProp.grammar.push(randomWord));
     for(let i = 0; i < prop.grammar.length; i++) {

@@ -1,9 +1,11 @@
+
 const canvas = document.querySelector('.background-canvas');
 const ctx = canvas.getContext('2d');
 var host = env.NODE_ENV == 'production' ? env.HOST : `http://localhost:${env.DEVPORT}`;
 var instanceName;
 
 const init = () => {
+    introductionAnimation(animationProp);
     runTests(executableTests);
     addListeners();
     resize();
@@ -41,6 +43,8 @@ const chatLatencyMillis = 200;
 
 var loadedMessages;
 const scrollBar = document.querySelector('.content-scrollbar');
+const typingAudio = document.createElement('audio');
+typingAudio.src = '/audio/keypress.wav';
 
 const chatLoop = async () => {   
     let messages = await fetch(`${host}/api/messages`);
@@ -147,6 +151,70 @@ class Bubble {
     }
 
 }
+
+const playTypingAudio = () => {
+    typingAudio.currentTime = 0;
+    typingAudio.play();
+}
+
+const welcomeText = document.querySelector('.welcome-text');
+
+const animationProp = {
+    characterDrawingInterval: 50,
+    characterErasingInterval: 40,
+    intervalBetweenDrawErase: 1200,
+    intervalBetweenWords: 400,
+    grammar: [
+        'Hello :)',
+        `I'm Ansis, an aspiring Web Developer`,
+        `I don't know what to say other than check out my projects and social media`,
+        'Here are some random words',
+    ],
+    showUnderscoreAfterDraw: true,
+    underscoreDrawCount: 3,
+    underscoreDrawInterval: 600,
+    underscoreCharacter: ' |',
+    randomWordCount: 5,
+}
+
+const introductionAnimation = async (prop) => {
+    let randomWords = await fetch(host + '/api/words');
+    let randomWordsJson = await randomWords.json();
+    randomWordsJson.forEach(randomWord => animationProp.grammar.push(randomWord));
+    for(let i = 0; i < prop.grammar.length; i++) {
+        // maybe set characterErasingInterval inversely proprtional to length
+        let word = prop.grammar[i];
+        await drawText(welcomeText, word, prop.characterDrawingInterval);
+        for(let j = 0; j < prop.underscoreDrawCount; j++) {
+            await drawText(welcomeText, prop.underscoreCharacter, prop.underscoreDrawInterval);
+            // await sleep();
+            await eraseText(welcomeText, prop.underscoreDrawInterval, 1);
+        }
+        await eraseText(welcomeText, prop.characterErasingInterval);
+        await sleep(prop.intervalBetweenWords);
+    }
+}
+
+const drawText = async (element, text, interval) => {
+    let length = text.length;
+    for(let i = 0; i < length; i++) {
+        element.textContent += text.charAt(i);
+        if(text.charAt(i) != ' ') await sleep(interval);
+    }
+}
+
+const sleep = (ms) => {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const eraseText = async (element, interval, eraseLength='all') => {
+    let length = element.textContent.length;
+    for(let i = length; i > (eraseLength == 'all' ? 0 : length - eraseLength); i--) {
+        element.textContent = element.textContent.substring(0, i-1);
+        if(element.textContent.charAt(i) != ' ') await sleep(interval);
+    }
+}
+
 
 /**
  * Generates random integer in a specified closed interval
@@ -309,7 +377,6 @@ const addListeners = () => {
         }
     }
     submitButton.onclick = submit;
-
 
 }
 

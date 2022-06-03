@@ -19,4 +19,4 @@ Tech Stack:
 - Back-end: Node.js with Express ⚙️
 - Front-end: Handlebars & CSS 🖼️
 - Database: MongoDB Atlas & Mongoose for Persistence 🍃
-- Deployment: Heroku 🌐
+- Deployment && SSL: Heroku 🌐

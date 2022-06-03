@@ -1,6 +1,7 @@
 const express = require('express');
 const exphbs = require('express-handlebars')
 const mongoose = require('mongoose');
+
 const path = require('path');
 const fs = require('fs');
 const morgan = require('morgan');
@@ -19,6 +20,9 @@ app.set('json spaces', 2);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(morgan('combined', { stream: logFile }));
+app.use(cors({
+  origin: "https://plepis.me",
+}))
 
 app.use('/build/', express.static(path.join(__dirname, 'node_modules/three/build')));
 app.use('/jsm/', express.static(path.join(__dirname, 'node_modules/three/examples/jsm')));

@@ -18,7 +18,7 @@ const debug = {
     cameraRotationStep: 0.04,
     maxCubeSize: 60,
     omega: 20,
-    dimensions: 2,
+    dimensions: 3,
     matrixHasInterior: false,
     framesPerKeyHandle: 7,
     keyboardControls: false,
@@ -75,7 +75,7 @@ class Scrambler {
         for(let i = 0; i < moves; i++) {
             let items = Array.from(faceVector);
             let arr = items[Math.floor(Math.random()*items.length)];
-            let layers = Math.floor(Math.random()*(cube.dimension-1) + 1);
+            let layers = cube.dimension < 4 ? 1 : Math.floor(Math.random()*(cube.dimension-1) + 1);
             this.moves.push({
                 face: arr[0],
                 layers,
@@ -353,19 +353,21 @@ class RubiksCube {
         this.matrix.forEach((plate, plateIndex) => {
             plate.forEach((row, rowIndex) => {
                 row.forEach((col, colIndex) => {
-                    if(color == 'any' || col.colorString.includes(color)) {
-                        let index = col.colorString.indexOf(color);
-                        let face = col.colorString.substring(index-2, index-1);
-                        corners.push({
-                            col,
-                            pos: {
-                                height: plateIndex,
-                                depth: rowIndex,
-                                width: colIndex,
-                            },
-                            rot: col.mesh.rotation,
-                            face,
-                        });
+                    if(col.colorString.split(' ').length == 4) {
+                        if(color == 'any' || col.colorString.includes(color)) {
+                            let index = col.colorString.indexOf(color);
+                            let face = col.colorString.substring(index-2, index-1);
+                            corners.push({
+                                col,
+                                pos: {
+                                    height: plateIndex,
+                                    depth: rowIndex,
+                                    width: colIndex,
+                                },
+                                rot: col.mesh.rotation,
+                                face,
+                            });
+                        }
                     }
                 });
             });
@@ -374,8 +376,62 @@ class RubiksCube {
         if(count == 'all') return result;
         return result.slice(0, count);
     }
-    findEdge(){}
-    findCenter(){}
+    findEdges(color='any', layer='any', count=1){
+        let edges = [];
+        this.matrix.forEach((plate, plateIndex) => {
+            plate.forEach((row, rowIndex) => {
+                row.forEach((col, colIndex) => {
+                    if(col.colorString.split(' ').length == 3) {
+                        if(color == 'any' || col.colorString.includes(color)) {
+                            let index = col.colorString.indexOf(color);
+                            let face = col.colorString.substring(index-2, index-1);
+                            edges.push({
+                                col,
+                                pos: {
+                                    height: plateIndex,
+                                    depth: rowIndex,
+                                    width: colIndex,
+                                },
+                                rot: col.mesh.rotation,
+                                face,
+                            });
+                        }
+                    }
+                });
+            });
+        });
+        let result = layer == 'any' ? edges : edges.filter(edge => edge.pos.height == layer)
+        if(count == 'all') return result;
+        return result.slice(0, count);
+    }
+    findCenters(color='any', layer=0, count=1){
+        let centers = [];
+        this.matrix.forEach((plate, plateIndex) => {
+            plate.forEach((row, rowIndex) => {
+                row.forEach((col, colIndex) => {
+                    if(col.colorString.split(' ').length == 2) {
+                        if(color == 'any' || col.colorString.includes(color)) {
+                            let index = col.colorString.indexOf(color);
+                            let face = col.colorString.substring(index-2, index-1);
+                            centers.push({
+                                col,
+                                pos: {
+                                    height: plateIndex,
+                                    depth: rowIndex,
+                                    width: colIndex,
+                                },
+                                rot: col.mesh.rotation,
+                                face,
+                            });
+                        }
+                    }
+                });
+            });
+        });
+        let result = centers.filter(center => center.pos.height == layer)
+        if(count == 'all') return result;
+        return result.slice(0, count);
+    }
 }
 
 class MatrixEntry {
@@ -864,6 +920,7 @@ const rotationsCompleted = async () => {
 /**
  * Rubiks Cube solving logic
  */
+// UPON START ROTATE CENTERS CORRECTLY (FOR ODD)
 const solveCurrentCube = async () => {
     let solved = false;
     const startTime = Date.now();
@@ -992,6 +1049,7 @@ const solveCurrentCube = async () => {
         await rotationsCompleted();
         // Permute last 2 layers
 
+        // Decide bottom permutation
         let bottom;
         for(let i = 0; i < 4; i++) {
             let topLeft = cube.matrix[0][0][0];
@@ -1017,7 +1075,7 @@ const solveCurrentCube = async () => {
             algorithm(`D`);
             await rotationsCompleted();
         }
-
+        // Decide top permutation
         let top;
         for(let i = 0; i < 4; i++) {
             let topLeft = cube.matrix[1][0][0];
@@ -1045,6 +1103,7 @@ const solveCurrentCube = async () => {
         }
         await rotationsCompleted();
 
+        // Find PBL case
         if(top == 'adj' && bottom == 'adj') { // symetrical
             algorithm(`R2 U' B2 U2 R2 U' R2`);
         }else if(top == 'adj' && bottom == 'diag') { // non-symetrical
@@ -1083,8 +1142,145 @@ const solveCurrentCube = async () => {
 
     } else if (cube.dimension == 3) {
 
+        let correctEdges = cube.findEdges('white', 2, 'all').filter(edge => edge.col.colorString.includes(`U(white)`));
+        let iterationsNeeded = 4 - correctEdges.length;
 
-        
+        // Make flower pattern
+        for(let i = 0; i < iterationsNeeded; i++) {
+            let badEdges = cube.findEdges('white', 'any', 'all').filter(edge => edge.face != 'U');
+            let badEdge = badEdges[0];
+            let insertionSlot;
+            switch(badEdge.pos.height) {
+                case 2:
+                    switch(badEdge.face) { // D is impossible, U is good 
+                        case 'F':
+                            algorithm(`F U' R`)
+                            break;
+                        case 'B':
+                            algorithm(`B' U R'`)
+                            break;
+                        case 'L':
+                            algorithm(`L U' F`)
+                            break;
+                        case 'R':
+                            algorithm(`R' U F';`)
+                            break;
+                    }
+                    break;
+                case 1:
+                    switch(badEdge.face) { // D is impossible, U is impossible 
+                        case 'F':
+                            insertionSlot = cube.matrix[2][1][badEdge.pos.width];
+                            while(insertionSlot.colorString.includes(`U(white)`)) {
+                                algorithm(`U`);
+                                await rotationsCompleted();
+                                insertionSlot = cube.matrix[2][1][badEdge.pos.width];
+                            }
+                            algorithm(badEdge.pos.width == 0 ? `L'` : `R`);
+                            break;
+                        case 'B':
+                            insertionSlot = cube.matrix[2][1][badEdge.pos.width];
+                            while(insertionSlot.colorString.includes(`U(white)`)) {
+                                algorithm(`U`);
+                                await rotationsCompleted();
+                                insertionSlot = cube.matrix[2][1][badEdge.pos.width];
+                            }
+                            algorithm(badEdge.pos.width == 0 ? `L` : `R'`);
+                            break;
+                        case 'L':
+                            insertionSlot = cube.matrix[2][badEdge.pos.depth][1];
+                            while(insertionSlot.colorString.includes(`U(white)`)) {
+                                algorithm(`U`);
+                                await rotationsCompleted();
+                                insertionSlot = cube.matrix[2][badEdge.pos.depth][1];
+                            }
+                            algorithm(badEdge.pos.depth == 0 ? `B'` : `F`);
+                            break;
+                        case 'R':
+                            insertionSlot = cube.matrix[2][badEdge.pos.depth][1];
+                            while(insertionSlot.colorString.includes(`U(white)`)) {
+                                algorithm(`U`);
+                                await rotationsCompleted();
+                                insertionSlot = cube.matrix[2][badEdge.pos.depth][1];
+                            }
+                            algorithm(badEdge.pos.depth == 0 ? `B` : `F'`);
+                            break;
+                    }
+                    break;
+                case 0:
+                    switch(badEdge.face) { // D is impossible, U is impossible 
+                        case 'F':
+                            insertionSlot = cube.matrix[2][2][1];
+                            while(insertionSlot.colorString.includes(`U(white)`)) {
+                                algorithm(`U`);
+                                await rotationsCompleted();
+                                insertionSlot = cube.matrix[2][2][1];
+                            }
+                            algorithm(`F' U' R`);
+                            break;
+                        case 'B':
+                            insertionSlot = cube.matrix[2][0][1];
+                            while(insertionSlot.colorString.includes(`U(white)`)) {
+                                algorithm(`U`);
+                                await rotationsCompleted();
+                                insertionSlot = cube.matrix[2][0][1];
+                            }
+                            algorithm(`B' U' L`);
+                            break;
+                        case 'L':
+                            insertionSlot = cube.matrix[2][1][0];
+                            while(insertionSlot.colorString.includes(`U(white)`)) {
+                                algorithm(`U`);
+                                await rotationsCompleted();
+                                insertionSlot = cube.matrix[2][1][0];
+                            }
+                            algorithm(`L U B'`);
+                            break;
+                        case 'R':
+                            insertionSlot = cube.matrix[2][1][2];
+                            while(insertionSlot.colorString.includes(`U(white)`)) {
+                                algorithm(`U`);
+                                await rotationsCompleted();
+                                insertionSlot = cube.matrix[2][1][2];
+                            }
+                            algorithm(`R' U' B`);
+                            break;
+                        case 'D':
+                            insertionSlot = cube.matrix[2][badEdge.pos.depth][badEdge.pos.width];
+                            while(insertionSlot.colorString.includes(`U(white)`)) {
+                                algorithm(`U`);
+                                await rotationsCompleted();
+                                insertionSlot = cube.matrix[2][badEdge.pos.depth][badEdge.pos.width];
+                            }
+                            if(badEdge.pos.depth == 0) algorithm(`B2`);
+                            if(badEdge.pos.depth == 2) algorithm(`F2`);
+                            if(badEdge.pos.width == 0) algorithm(`L2`);
+                            if(badEdge.pos.width == 2) algorithm(`R2`);
+                            break;
+                    }
+                }
+            await rotationsCompleted();
+        }
+
+        // Create cross
+        for(let i = 0; i < 4; i++) {
+            let frontPiece = cube.matrix[2][2][1];
+            let frontCenterPiece = cube.matrix[1][2][1];
+            while(!sameColor(frontPiece, 'F', frontCenterPiece, 'F') || !frontPiece.colorString.includes(`U(white)`)) {
+                algorithm(`U`);
+                await rotationsCompleted();
+                frontPiece = cube.matrix[2][2][1];
+            }
+            algorithm(`F2`);
+            rotateCube('U', 3, 1);
+            await rotationsCompleted();
+        }
+
+        // F2L
+        for(let i = 0; i < 4; i++) {
+            
+        }
+
     } else if (cube.dimension == 4) {
 
     }

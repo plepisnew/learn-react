@@ -5,8 +5,8 @@
 }
 
 .background-canvas {
-    z-index: 0;
-    position: absolute;
+    /* z-index: 0; */
+    /* position: absolute; */
 }
 
 p {
@@ -94,7 +94,6 @@ body {
 
 .animation-button {
     background-color: rgb(198, 40, 40);
-    /* background-color: rgb(67, 160, 71); */
 }
 
 .updating-button {
@@ -121,10 +120,6 @@ body {
 .open-chatbox {
     bottom: 0px;
 }
-
-/* .chatbox:hover {
-    bottom: 0px;
-} */
 
 .expand-content {
     cursor: pointer;
@@ -197,16 +192,11 @@ body {
 
 .welcome-container {
     position: fixed;
-    /* background: rgb(150, 150, 150);
-    padding: 5px;
-    border-radius: 10px; */
     left: 20vw;
     max-width: 60vw;
-    /* right: 20vw; */
     top: 150px;
     display: flex;
     align-items: center;
-    /* justify-content: center; */
 }
 
 .socials {
@@ -222,7 +212,6 @@ body {
 
 .social-image {
     width: auto;
-    /* display: inline-block; */
     height: 50px;
     width: 50px;
     cursor: pointer;

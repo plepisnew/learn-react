@@ -761,7 +761,6 @@ window.onkeydown = (e) => {
     if(debug.keyboardControls) {
         if(e.key === 'u' && !userInput.u) {
             userInput.u = true;
-            console.log(userInput.space);
             userInput.space ? rotateCube(`u'`, 1, 1) : rotateCube('u', 1, 1);
         }
         if(e.key === 'd' && !userInput.d) {

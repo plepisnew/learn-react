@@ -14,8 +14,10 @@ Projects
 
 - [`/rubiks`](https://plepis.me/projects/rubiks) [(W)](https://github.com/plepisnew/learn-js/wiki/Rubiks-Cube-Solver) : Rubiks Cube simulator and solver
 
+- [`/pogulum`](https://plepis.me/projects/pogulum) [(W)](https://github.com/plepisnew/learn-js/wiki/Pogulum) : Twitch Clip Scraper
+
 Tech Stack:
--
+
 - Back-end: Node.js with Express ⚙️
 - Front-end: Handlebars & CSS 🖼️
 - Database: MongoDB Atlas & Mongoose for Persistence 🍃

@@ -227,3 +227,20 @@ body {
     width: 50px;
     cursor: pointer;
 }
+
+.chat-element {
+    flex: 1;
+}
+
+.time-stamp {
+    font-size: 10px;
+    font-family: 'Consolas';
+    margin-top: 4px;
+    margin-right: 3px;
+}
+
+.message-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}

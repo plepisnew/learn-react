@@ -3,6 +3,7 @@ const canvas = document.querySelector('.background-canvas');
 const ctx = canvas.getContext('2d');
 var host = env.NODE_ENV == 'production' ? env.HOST : `http://localhost:${env.DEVPORT}`;
 var instanceName;
+import parseTime from './timeutil.js';
 
 const init = () => {
     introductionAnimation(animationProp);
@@ -50,9 +51,9 @@ const chatLoop = async () => {
     let messages = await fetch(`${host}/api/messages`);
     messages = await messages.json();
     if(!loadedMessages) loadedMessages = messages.length;
-    if(loadedMessages != messages.length) {
+    if(loadedMessages != messages.length) { // new messages present
         for(let i=loadedMessages; i<messages.length; i++) {
-            insertMessage(contentContainer, messages[i].user, messages[i].content);
+            insertMessage(contentContainer, messages[i].createdAt, messages[i].user, messages[i].content);
             loadedMessages++;
         }
         scrollBar.scrollTop = scrollBar.scrollHeight - scrollBar.clientHeight;
@@ -386,16 +387,27 @@ const addMessages = async () => {
     let messages = await fetch(`${host}/api/messages`);
     messages = await messages.json();
     messages.forEach(message => {
-        insertMessage(contentContainer, message.user, message.content);
+        insertMessage(contentContainer, message.createdAt, message.user, message.content);
     });
     scrollBar.scrollTop = scrollBar.scrollHeight - scrollBar.clientHeight;
 }
 
-const insertMessage = (contentContainer, user, content) => {
+const insertMessage = (contentContainer, createdAt, user, content) => {
     const msg = document.createElement('p');
+    const timeStamp = document.createElement('span');
+    const msgContainer = document.createElement('div');
+
     msg.className = 'chat-element';
     msg.innerHTML = `<span class="author">${user}</span>: ${content}`;
-    contentContainer.appendChild(msg);
+
+    timeStamp.className = 'time-stamp';
+    timeStamp.innerHTML = `${parseTime(createdAt)}`;
+
+    msgContainer.className = 'message-container';
+
+    msgContainer.appendChild(timeStamp);
+    msgContainer.appendChild(msg);
+    contentContainer.appendChild(msgContainer);
 }
 
 const submitMessage = async (message) => {

@@ -7,7 +7,7 @@ const DEFAULT_ID = '0kvjan2jt8lf8qkhjolubt5ggih7ip'
 const BASE_URL = "https://api.twitch.tv/"
 const CLIP_RES = "helix/clips"
 const PROXY = "";
-var TOKEN = 'fyu0aj0hexqkl66qukyr3rr4jthft4';
+var TOKEN = 't31h7pqml330tq0n9jsgablq3j7v6f';
 var CLIENT_ID = '0kvjan2jt8lf8qkhjolubt5ggih7ip';
 let clip_count = 10;
 
@@ -124,6 +124,7 @@ const twitchGetRequest = function(resource, params, type) {
     }
 
     let url = BASE_URL + resource + parameterSuffix(params) + "&first=" + clip_count + "&after=" + suffix;
+    console.log(CLIENT_ID, TOKEN);
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest()
         xhr.open('GET', url)

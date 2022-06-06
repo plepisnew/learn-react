@@ -53,7 +53,6 @@ const animate = () => {
     previousTime = currentTime;
     let frameRate = parseInt(1000/dt);
     if(debug.logFrameReport) console.log(`Frame ${frame} of Gameloop: dt=${dt}ms and FR=${frameRate}fps`);
-
     handleKeyPresses(frame);
     handleCameraRotation();
     if(frame > 0) handleCubeRotations(dt/1000);
@@ -113,6 +112,8 @@ const faceVector = new Map([
     [`R'`, new THREE.Vector3(1, 0, 0)],
     [`F'`, new THREE.Vector3(0, 0, 1)],
     [`B'`, new THREE.Vector3(0, 0, -1)],
+    [`M`, new THREE.Vector3(-1, 0, 0)],
+    [`M'`, new THREE.Vector3(1, 0, 0,)],
 ]);
 
 const rotateCube = (face, count, times) => {
@@ -181,6 +182,11 @@ const algorithm = (algo) => {
         let count = move.length == 1 ? 1 : move.charAt(1) == `'` ? 1 : parseInt(move.charAt(1));
         rotateCube(face, 1, count);
     });
+}
+
+const turn = async (algo) => {
+    algorithm(algo);
+    await rotationsCompleted();
 }
 
 class RubiksCube {
@@ -339,6 +345,20 @@ class RubiksCube {
                     }
                 }
                 return rotatables;
+            case 'M':
+            case `M'`:
+                for(let depth = 0; depth < this.dimension; depth++) {
+                    for(let height = 0; height < this.dimension; height++) {
+                        for(let width = 1; width < this.dimension - 1; width++) {
+                            let element = this.matrix[height][depth][width]
+                            if(element) {
+                                let cube = element;
+                                rotatables.push(cube);
+                            }
+                        }
+                    }
+                }
+                return rotatables;
         }
     }
 
@@ -372,11 +392,14 @@ class RubiksCube {
                 });
             });
         });
+        if(layer == 'all') {
+            return corners;
+        }
         let result = corners.filter(corner => corner.pos.height == layer)
         if(count == 'all') return result;
         return result.slice(0, count);
     }
-    findEdges(color='any', layer='any', count=1){
+    findEdges(color='any', layer='any', count='all'){
         let edges = [];
         this.matrix.forEach((plate, plateIndex) => {
             plate.forEach((row, rowIndex) => {
@@ -428,7 +451,7 @@ class RubiksCube {
                 });
             });
         });
-        let result = centers.filter(center => center.pos.height == layer)
+        let result = layer == 'any' ? centers : centers.filter(center => center.pos.height == layer)
         if(count == 'all') return result;
         return result.slice(0, count);
     }
@@ -523,7 +546,8 @@ const likeRotations = new Map([
     [`U'`, 'D'],
     [`D'`, 'U'],
     [`F'`, 'B'],
-    [`B'`, 'F'], 
+    [`B'`, 'F'],
+    [`M'`, 'L'], 
 ]);
 
 const colorStringRotation = [
@@ -556,6 +580,11 @@ const colorStringRotation = [
     ['B', 'R', 'U'],
     ['B', 'U', 'L'],
     ['B', 'D', 'R'],
+
+    ['M', 'F', 'U'],
+    ['M', 'B', 'D'],
+    ['M', 'D', 'F'],
+    ['M', 'U', 'B'],
 ]
 
 /**
@@ -921,6 +950,29 @@ const rotationsCompleted = async () => {
  */
 // UPON START ROTATE CENTERS CORRECTLY (FOR ODD)
 const solveCurrentCube = async () => {
+    
+    if(cube.dimension > 2) {
+        let whiteCenter = cube.findCenters('white', 'any', 'all')[0]; // white face on bottom
+        switch(whiteCenter.face) {
+            case 'F':
+                rotateCube(`R'`, cube.dimension, 1);
+                break;
+            case 'L':
+                rotateCube(`F'`, cube.dimension, 1);
+                break;
+            case 'R':
+                rotateCube(`F'`, cube.dimension, 1);
+                break;
+            case 'B':
+                rotateCube(`R`, cube.dimension, 1);
+                break;
+            case 'U':
+                rotateCube(`R`, cube.dimension, 2);
+                break;
+        }
+        await rotationsCompleted();
+    }
+
     let solved = false;
     const startTime = Date.now();
     if(cube.dimension == 2) {
@@ -1260,7 +1312,6 @@ const solveCurrentCube = async () => {
                 }
             await rotationsCompleted();
         }
-
         // Create cross
         for(let i = 0; i < 4; i++) {
             let frontPiece = cube.matrix[2][2][1];
@@ -1274,10 +1325,448 @@ const solveCurrentCube = async () => {
             rotateCube('U', 3, 1);
             await rotationsCompleted();
         }
-
-        // F2L
+        // Insert corner pieces
         for(let i = 0; i < 4; i++) {
-            
+            let center = cube.matrix[1][2][1];
+            let cornerPiece;
+            if(i == 0) cornerPiece = getCorner('white', 'blue', 'red');
+            if(i == 1) cornerPiece = getCorner('white', 'blue', 'orange');
+            if(i == 2) cornerPiece = getCorner('white', 'green', 'red');
+            if(i == 3) cornerPiece = getCorner('white', 'green', 'orange');
+            // Corner Piece on top
+
+            if(cornerPiece.pos.height == 0) {
+                switch(cornerPiece.face) {
+                    case 'L': // width = 0
+                        if(cornerPiece.pos.depth == 0) {
+                            await turn(`B' U B`);
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`U2 L' U L`);
+                        }
+                        if(cornerPiece.pos.depth == 2) {
+                            await turn(`L' U' L`);
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`U R U' R'`);
+                        }
+                        break;
+                    case 'R': // width = 2
+                        if(cornerPiece.pos.depth == 0) {
+                            await turn(`B U' B'`);
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`U2 R U' R'`);
+                        }
+                        if(cornerPiece.pos.depth == 2) {
+                            await turn(`R U R'`);
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`U' L' U L`);
+                        }
+                        break;
+                    case 'F': // depth = 2
+                        if(cornerPiece.pos.width == 0) {
+                            await turn(`L' U L`);
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`U' L' U L`);
+                        }
+                        if(cornerPiece.pos.width == 2) {
+                            await turn(`R U' R'`);
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`U R U' R'`);
+                        }
+                        break;
+                    case 'B': // depth = 0
+                        if(cornerPiece.pos.width == 0) {
+                            await turn(`L U' L'`);
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`R U2 R'`);
+                        }
+                        if(cornerPiece.pos.width == 2) {
+                            await turn(`R' U R`);
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`L' U2 L`);
+                        }
+                        break;
+                    case 'D': // unknown
+                        if(cornerPiece.pos.width == 0) {
+                            if(cornerPiece.pos.depth == 0) {
+                                await turn(`L U' L'`);
+                                while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                    rotateCube('D', 2, 1);
+                                    await rotationsCompleted();
+                                    center = cube.matrix[1][2][1];
+                                }
+                                await turn(`U2 L' U L`);
+                            }
+                            if(cornerPiece.pos.depth == 2) {
+                                await turn(`L' U' L`);
+                                while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                    rotateCube('D', 2, 1);
+                                    await rotationsCompleted();
+                                    center = cube.matrix[1][2][1];
+                                }
+                                await turn(`L' U L`);
+                            }
+                        }
+                        if(cornerPiece.pos.width == 2) {
+                            if(cornerPiece.pos.depth == 0) {
+                                await turn(`B U' B'`);
+                                while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                    rotateCube('D', 2, 1);
+                                    await rotationsCompleted();
+                                    center = cube.matrix[1][2][1];
+                                }
+                                await turn(`L' U2 L`)
+                            }
+                            if(cornerPiece.pos.depth == 2) {
+                                await turn(`R U R'`);
+                                while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                    rotateCube('D', 2, 1);
+                                    await rotationsCompleted();
+                                    center = cube.matrix[1][2][1];
+                                }
+                                await turn(`R U' R'`)
+                            }
+                        }
+                        break;
+                }
+            }
+            // Corner piece on bottom
+            if(cornerPiece.pos.height == 2) {
+                switch(cornerPiece.face) {
+                    case 'L': // width = 0
+                        if(cornerPiece.pos.depth == 0) {
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`U2 L' U L`);
+                        }
+                        if(cornerPiece.pos.depth == 2) {
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`R U' R'`);
+                        }
+                        break;
+                    case 'R': // width = 2
+                        if(cornerPiece.pos.depth == 0) {
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`U2 R U' R'`);
+                        }
+                        if(cornerPiece.pos.depth == 2) {
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`L' U L`);
+                        }
+                        break;
+                    case 'F': // depth = 2
+                        if(cornerPiece.pos.width == 0) {
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`U' L' U L`);
+                        }
+                        if(cornerPiece.pos.width == 2) {
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`U R U' R'`);
+                        }
+                        break;
+                    case 'B': // depth = 0
+                        if(cornerPiece.pos.width == 0) {
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`R U2 R'`);
+                        }
+                        if(cornerPiece.pos.width == 2) {
+                            while(!sameColor(center, 'F', cornerPiece.col, 'U')) {
+                                rotateCube('D', 2, 1);
+                                await rotationsCompleted();
+                                center = cube.matrix[1][2][1];
+                            }
+                            await turn(`L' U2 L`);
+                        }
+                        break;
+                    case 'U': // unknown
+                        if(cornerPiece.pos.width == 0) {
+                            if(cornerPiece.pos.depth == 0) {
+                                while(!sameColor(center, 'F', cornerPiece.col, 'B')) {
+                                    rotateCube('D', 2, 1);
+                                    await rotationsCompleted();
+                                    center = cube.matrix[1][2][1];
+                                }
+                                await turn(`U' L' U L F U2 F'`);
+                            }
+                            if(cornerPiece.pos.depth == 2) {
+                                while(!sameColor(center, 'F', cornerPiece.col, 'F')) {
+                                    rotateCube('D', 2, 1);
+                                    await rotationsCompleted();
+                                    center = cube.matrix[1][2][1];
+                                }
+                                await turn(`U' R U' R' F' U2 F`);
+                            }
+                        }
+                        if(cornerPiece.pos.width == 2) {
+                            if(cornerPiece.pos.depth == 0) {
+                                while(!sameColor(center, 'F', cornerPiece.col, 'B')) {
+                                    rotateCube('D', 2, 1);
+                                    await rotationsCompleted();
+                                    center = cube.matrix[1][2][1];
+                                }
+                                await turn(`U R U' R' F' U2 F`)
+                            }
+                            if(cornerPiece.pos.depth == 2) {
+                                while(!sameColor(center, 'F', cornerPiece.col, 'F')) {
+                                    rotateCube('D', 2, 1);
+                                    await rotationsCompleted();
+                                    center = cube.matrix[1][2][1];
+                                }
+                                await turn(`U L' U L F U2 F'`)
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+        // Insert edge piees
+        for(let i = 0; i < 4; i++) {
+            let center = cube.matrix[1][2][1];
+            let edgePiece;
+            if(i == 0) edgePiece = getEdge('blue', 'red');
+            if(i == 1) edgePiece = getEdge('blue', 'orange');
+            if(i == 2) edgePiece = getEdge('green', 'red');
+            if(i == 3) edgePiece = getEdge('green', 'orange');
+            if(edgePiece.pos.height == 1) { /// first get edge on top to get general case
+                if(edgePiece.pos.depth == 0 && edgePiece.pos.width == 0) await turn(`L U L' U2 L U' L' U2 L U' L'`);
+                if(edgePiece.pos.depth == 0 && edgePiece.pos.width == 2) await turn(`R' U' R U2 R' U R U2 R' U R`);
+                if(edgePiece.pos.depth == 2 && edgePiece.pos.width == 0) await turn(`L' U' L U2 L' U L U2 L' U L`);
+                if(edgePiece.pos.depth == 2 && edgePiece.pos.width == 2) await turn(`R U R' U2 R U' R' U2 R U' R'`);
+            }
+            while(!edgePiece.col.colorString.includes('F')) await turn(`U`); // rotate to front
+            while(!sameColor(center, 'F', edgePiece.col, 'F')) { // rotate bottom 2 till match
+                rotateCube('D', 2, 1);
+                await rotationsCompleted();
+                center = cube.matrix[1][2][1];
+            }
+            // 2 cases: edge must be inserted either left or right
+            let leftCenter = cube.matrix[1][1][0];
+            let rightCenter = cube.matrix[1][1][2];
+            if(sameColor(leftCenter, 'L', edgePiece.col, 'U')) await turn(`U' L' U' L U F U F'`);
+            else if(sameColor(rightCenter, 'R', edgePiece.col, 'U')) await turn(`U R U R' U' F' U' F`);
+        }
+        // Setup yellow cross
+        for(let i = 0; i < 2; i++) {
+            let top = cube.matrix[2][0][1].colorString; // not
+            let bottom = cube.matrix[2][2][1].colorString; // was
+            let left = cube.matrix[2][1][0].colorString; // not
+            let right = cube.matrix[2][1][2].colorString; // was
+
+            if(left.includes('U(yellow)') && right.includes('U(yellow)') && top.includes('U(yellow)') && bottom.includes('U(yellow)')) {
+                break;
+            } else if(left.includes('U(yellow)') && top.includes('U(yellow)')) {
+                await turn(`F U R U' R' F'`);
+                break;
+            } else if(left.includes('U(yellow)') && bottom.includes('U(yellow)')) {
+                await turn(`U F U R U' R' F'`);
+                break;
+            } else if(right.includes('U(yellow)') && top.includes('U(yellow)')) {
+                await turn(`U' F U R U' R' F'`);
+                break;
+            } else if(right.includes('U(yellow)') && bottom.includes('U(yellow)')) {
+                await turn(`U2 F U R U' R' F'`);
+                break;
+            } else if(left.includes('U(yellow)') && right.includes('U(yellow)')) {
+                await turn(`F R U R' U' F'`);
+                break;
+            } else if(top.includes('U(yellow)') && bottom.includes('U(yellow)')) {
+                await turn(`U F R U R' U' F'`);
+                break;
+            } else {
+                await turn(`F R U R' U' F'`);
+            }
+        }
+        // OLL
+        for(let i = 0; i < 4; i++) {
+            let topLeft = cube.matrix[2][0][0].colorString;
+            let topRight = cube.matrix[2][0][2].colorString;
+            let bottomLeft = cube.matrix[2][2][0].colorString;
+            let bottomRight = cube.matrix[2][2][2].colorString;
+
+            let numberOfCorners = [topLeft, topRight, bottomLeft, bottomRight].filter(corner => corner.includes('U(yellow)')).length;
+            if(numberOfCorners == 0) { // 2 cross
+                if(bottomRight.includes('F(yellow)') && topRight.includes('B(yellow)')) {
+                    if(bottomLeft.includes('F(yellow)') && topLeft.includes('B(yellow)')) { // 21
+                        await turn(`R U2 R' U' R U R' U' R U' R'`);
+                        break;
+                    } else { // 22
+                        await turn(`R U2 R2 U' R2 U' R2 U2 R`);
+                        break;
+                    }
+                }
+            }
+            if(numberOfCorners == 1) { // 2 fish
+                if(bottomLeft.includes('U(yellow)')) {
+                    if(bottomRight.includes('F(yellow)')) { // 27
+                        await turn(`R U R' U R U2 R'`);
+                        break;
+                    } else {
+                        await turn(`U2 R U2 R' U' R U' R'`);
+                        break;
+                    }
+                }
+            }
+            if(numberOfCorners == 2) { // 2 sign 1 cuboid
+                if(bottomRight.includes('U(yellow)') && topLeft.includes('U(yellow)')) { // 25
+                    if(bottomLeft.includes('L(yellow)')) {
+                        await turn(`R U2 R' U' R U R' U' R U R' U' R U' R'`);
+                        break;
+                    }
+                }
+                if(bottomLeft.includes('U(yellow)') && bottomRight.includes('U(yellow)')) { // 23
+                    if(topLeft.includes('B(yellow)')) {
+                        await turn(`R2 D' R U2 R' D R U2 R`);
+                        break;
+                    } else {
+                        await turn(`U' L F R' F' L' F R F'`);
+                        break;
+                    }
+                }
+            }
+            await turn(`U`);
+        }
+        // PLL
+        let topLeft = cube.matrix[2][0][0];
+        let topRight = cube.matrix[2][0][2];
+        let bottomLeft = cube.matrix[2][2][0];
+        let bottomRight = cube.matrix[2][2][2];
+        let bottomLeftSolved = true; // use as point of reference
+        let topLeftSolved = sameColor(bottomLeft, 'L', topLeft, 'L');
+        let bottomRightSolved = sameColor(bottomLeft, 'F', bottomRight, 'F');
+        let topRightSolved = !sameColor(bottomLeft, 'L', topRight, 'B') &&
+                            !sameColor(bottomLeft, 'L', topRight, 'R') &&
+                            !sameColor(bottomLeft, 'F', topRight, 'B') &&
+                            !sameColor(bottomLeft, 'F', topRight, 'R');
+        // console.log(bottomLeftSolved, topLeftSolved, bottomRightSolved, topRightSolved);
+        if(!topLeftSolved || !bottomRightSolved || !topRightSolved) { // Permute corners
+            if(topLeftSolved) { // adjacent (R)
+                // console.log('adjacent (R) - T Perm')
+                await turn(`R U R' U' R' F R2 U' R' U' R U R' F'`); // T
+            } else if(topRightSolved) { // diagonal
+                // console.log('diagional - V perm')
+                await turn(`R' U R' U' B' R' B2 U' B' U B' R B R`)
+            } else if(bottomRightSolved) {
+                // console.log('adjacent (U) - U T perm')
+                await turn(`U R U R' U' R' F R2 U' R' U' R U R' F'`)
+            }else { // 3-shift
+                if(sameColor(bottomRight, 'R', bottomLeft, 'L')) { // CW
+                    // console.log('single 3-shift');
+                    await turn(`R' F R' B2 R F' R' B2 R2`);
+                } else {
+                    // console.log('double 3-shift');
+                    await turn(`R' F R' B2 R F' R' B2 R2 R' F R' B2 R F' R' B2 R2`);
+                }
+            }
+        }
+        // Permute edges
+        bottomLeft = cube.matrix[2][2][0];
+        topRight = cube.matrix[2][0][2];
+        let left = cube.matrix[2][1][0];
+        let bottom = cube.matrix[2][2][1];
+        let top = cube.matrix[2][0][1];
+        let right = cube.matrix[2][1][2];
+        let leftSolved = sameColor(bottomLeft, 'L', left, 'L');
+        let bottomSolved = sameColor(bottomLeft, 'F', bottom, 'F');
+        let topSolved = sameColor(topRight, 'B', top, 'B');
+        let rightSolved = sameColor(topRight, 'R', right, 'R');
+
+        let solvedEdges = [leftSolved, rightSolved, bottomSolved, topSolved].filter(solved => solved).length;
+        // console.log(leftSolved, bottomSolved, topSolved, rightSolved);
+        // console.log(solvedEdges);
+        if(solvedEdges == 0) { // H and Z perm
+            if(sameColor(top, 'B', bottomLeft, 'F')) {
+                // console.log('H perm')
+                await turn(`M2 U M2 U2 M2 U M2`);
+            } else if(sameColor(right, 'R', bottomLeft, 'F')){
+                // console.log('retarded Z perm')
+                await turn(`U M2 U' M2 U' M U2 M2 U2 M U2 U'`)
+            } else if(sameColor(left, 'L', bottomLeft, 'F')){
+                // console.log('normal Z perm')
+                await turn(`M2 U' M2 U' M U2 M2 U2 M U2`);
+            }
+        } else if(solvedEdges == 1) { // Ua and Ub
+            if(leftSolved) await turn(`U`);
+            if(rightSolved) await turn(`U'`);
+            if(bottomSolved) await turn(`U2`);
+            bottomLeft = cube.matrix[2][2][0];
+            bottom = cube.matrix[2][2][1];
+            right = cube.matrix[2][1][2];
+            if(sameColor(bottomLeft, 'L', bottom, 'F')) {
+                // console.log('Ub perm')
+                await turn(`R2 U R U R' U' R' U' R' U R'`);
+            } else if(sameColor(bottomLeft, 'L', right, 'R')) {
+                // console.log('Ua perm');
+                await turn(`R U' R U R U R U' R' U' R2`)
+            }
+        } // else permed correctly
+
+        let frontCenter = cube.matrix[1][2][1];
+        let topPiece = cube.matrix[2][2][1];
+        for(let i = 0; i < 4; i++) { // AUF
+            if(sameColor(frontCenter, 'F', topPiece, 'F')) {
+                solved = true;
+                break;
+            }
+            await turn(`U`);
+            topPiece = cube.matrix[2][2][1];
         }
 
     } else if (cube.dimension == 4) {
@@ -1293,9 +1782,26 @@ const sameColor = (col1, face1, col2, face2) => {
     let secondColors = col2.colorString.split(' ');
     let firstColor = firstColors.filter(color => color.charAt(0) == face1.toUpperCase())[0];
     let secondColor = secondColors.filter(color => color.charAt(0) == face2.toUpperCase())[0];
+    if(!firstColor || !secondColor) return false;
     let first = firstColor.split('(')[1].split(')')[0];
     let second = secondColor.split('(')[1].split(')')[0];
     return first == second;
+}
+
+const getCorner = (color1, color2, color3) => {
+    let foundCorners = cube.findCorners(color1, 'all', 'all').filter(cube => {
+        return cube.col.colorString.includes(color2);
+    }).filter(cube => {
+       return cube.col.colorString.includes(color3);
+    });
+    return foundCorners[0];
+}
+
+const getEdge = (color1, color2) => {
+    let foundEdges = cube.findEdges(color1, 'any', 'all').filter(cube => {
+        return cube.col.colorString.includes(color2);
+    });
+    return foundEdges[0];
 }
 
 init();

@@ -21,7 +21,7 @@
             <div>
                 <div class="switch-container">
                     <label class="switch">
-                        <input type="checkbox">
+                        <input type="checkbox" class="stickerless-switch">
                         <span class="slider-green round"></span>
                     </label>
                 </div>
@@ -47,7 +47,7 @@
                 <p>????????????????</p>
             </div>
             <div class="dialog-content">
-                <p>💡 Select the size (cubicles per dimension), cube size (width of whole cube), omega (face rotation angular speed) and whether you wan't a Stickerless cube, then spawn it. Default values (3, 60, Math.PI, false)</p>
+                <p>💡 Select the size (cubicles per dimension), cube size (width of whole cube), omega (face rotation angular speed) and whether you wan't a Stickerless cube, then spawn it. Default values (3, 60, 10, false)</p>
             </div>
         </div>
     </div>
@@ -84,7 +84,7 @@
 
     <div class="config-item">
         
-        <div class="config-switch">
+        <div data-tooltip="When enabled, press L, R, F, B, U, D to rotate the faces clockwise. Hold SPACE to rotate counter-clockwise" class="config-switch">
             <p class="config-title">Use Keyboard for algorithms</p>
             <label class="switch">
                 <input type="checkbox" class="algorithm-switch">

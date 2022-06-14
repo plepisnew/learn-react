@@ -38,6 +38,11 @@ body {
     margin-top: 60px;
 }
 
+body, html {
+    width: 100%;
+    height: 100%;
+}
+
 .project-icon {
     width: 50px;
     margin: 5px;
@@ -93,4 +98,3 @@ body {
     border-bottom-color: var(--tooltip-color);
     transform-origin: bottom center;
 }
-/* [data-tooltip] */

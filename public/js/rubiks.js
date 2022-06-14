@@ -17,11 +17,12 @@ const debug = {
     cameraMovementStep: 2,
     cameraRotationStep: 0.04,
     maxCubeSize: 60,
-    omega: 20,
+    omega: 10,
     dimensions: 3,
     matrixHasInterior: false,
     framesPerKeyHandle: 7,
     keyboardControls: false,
+    isStickerless: false,
 }
 
 var cube;
@@ -35,7 +36,7 @@ const init = () => {
     omegaInput.value = debug.omega;
 
     let dimensions = debug.dimensions; // initialize default cube
-    cube = new RubiksCube(dimensions, debug.maxCubeSize / dimensions);
+    cube = new RubiksCube(dimensions, debug.maxCubeSize / dimensions, false);
     console.log(cube);
 
     scrambler = new Scrambler();
@@ -190,10 +191,11 @@ const turn = async (algo) => {
 }
 
 class RubiksCube {
-    constructor(dimension, cellSize) {
+    constructor(dimension, cellSize, isStickerless) {
         this.dimension = dimension;
         this.cellSize = cellSize;
         this.matrix = this.generateMatrix(dimension, cellSize);
+        this.isStickerless = isStickerless;
     }
 
     generateMatrix(dimension, cellSize) {
@@ -621,6 +623,13 @@ const texture = {
     blue: new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load('/images/rubiks/blue.png')}),
     white: new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load('/images/rubiks/white.png')}),
     blank: new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load('/images/rubiks/blank.png')}),
+    redStickerless: new THREE.MeshBasicMaterial({ color: 'red' }),
+    orangeStickerless: new THREE.MeshBasicMaterial({ color: 'orange' }),
+    yellowStickerless: new THREE.MeshBasicMaterial({ color: 'yellow' }),
+    greenStickerless: new THREE.MeshBasicMaterial({ color: 'green' }),
+    blueStickerless: new THREE.MeshBasicMaterial({ color: 'blue' }),
+    whiteStickerless: new THREE.MeshBasicMaterial({ color: 'white' }),
+
 }
 
 /**
@@ -630,34 +639,37 @@ const texture = {
  * @returns {THREE.MeshBasicMaterial[]} array of six textures
  */
 const materialOf = (id, dimension) => {
+
+    if(dimension == 1) return [texture.green, texture.blue, texture.yellow, texture.white, texture.red, texture.orange];
     const coordinateArray = id.split(' ');
     var [ height, depth, width ] = [ coordinateArray[0], coordinateArray[1], coordinateArray[2] ];
     const material = [];
-
+    
+    console.log(height, depth, width);
     if(height == 0) {
-        material[3] = texture.white;
+        material[3] = debug.isStickerless ? texture.whiteStickerless : texture.white;
         material[2] = texture.blank;
     } else if(height == dimension - 1) {
-        material[2] = texture.yellow;
+        material[2] = debug.isStickerless ? texture.yellowStickerless : texture.yellow;
         material[3] = texture.blank;
     }
     if(depth == 0) {
-        material[5] = texture.orange;
+        material[5] = debug.isStickerless ? texture.orangeStickerless : texture.orange;
         material[4] = texture.blank;
     } else if(depth == dimension - 1) {
-        material[4] = texture.red;
+        material[4] = debug.isStickerless ? texture.redStickerless : texture.red;
         material[5] = texture.blank;
     }
     if(width == 0) {
-        material[1] = texture.blue;
+        material[1] = debug.isStickerless ? texture.blueStickerless : texture.blue;
         material[0] = texture.blank;
     }else if(width == dimension - 1) {
-        material[0] = texture.green;
+        material[0] = debug.isStickerless ? texture.greenStickerless : texture.green;
         material[1] = texture.blank;
     }
 
     for(let i = 0; i < 6; i++) {
-        if(!material[i]) material[i] = texture.blank;
+        if(!material[i]) { material[i] = texture.blank; }
     }
     return material;
 }
@@ -726,9 +738,10 @@ const cameraStep = document.querySelector('.camera-zoom-input');
 const cameraStepMovement = document.querySelector('.camera-rotation-input');
 
 const algorithmSwitch = document.querySelector('.algorithm-switch');
+const stickerlessSwitch = document.querySelector('.stickerless-switch')
 
 algorithmSwitch.oninput = () => {
-    console.log(algorithmSwitch.checked);
+    // console.log(algorithmSwitch.checked);
     debug.keyboardControls = algorithmSwitch.checked;
 }
 
@@ -738,6 +751,7 @@ scrambleCube.onclick = () => {
 }
 
 spawnCube.onclick = () => {
+    debug.isStickerless = stickerlessSwitch.checked;
     debug.dimensions = dimensionInput.value;
     debug.maxCubeSize = sizeInput.value;
     debug.omega = omegaInput.value;
@@ -747,7 +761,7 @@ spawnCube.onclick = () => {
     onCubeChange();
     rotationQueue = [];
     clearScene();
-    cube = new RubiksCube(debug.dimensions, debug.maxCubeSize / debug.dimensions);
+    cube = new RubiksCube(debug.dimensions, debug.maxCubeSize / debug.dimensions, debug.isStickerless);
     console.log(cube);
 }
 

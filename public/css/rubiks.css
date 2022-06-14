@@ -148,7 +148,7 @@ input[type=number]::-webkit-outer-spin-button {
     font-weight: 500;
 }
 
-.algorithm-input-container {
+.config-switch {
     display: flex;
     flex-direction: row;
 }
@@ -275,4 +275,49 @@ input:checked+.slider-green:before {
     flex-direction: row;
     align-items: space-evenly;
     justify-content: center;
+}
+
+.config-switch {
+    position: relative;
+}
+
+.config-switch::after,
+.config-switch::before {
+    --scale: 0;
+    --tooltip-color: black;
+    --arrow-size: 8px;
+    position: absolute;
+    bottom: -0.25rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(var(--translate-y, 0)) scale(var(--scale));
+    transition: 150ms transform;
+    transform-origin: top center;
+}
+
+.config-switch::before {
+    --translate-y: calc(100% + var(--arrow-size));
+
+    content: attr(data-tooltip);
+    color: white;
+    padding: .5rem;
+    width: max-content;
+    max-width: 100%;
+    /* text-align: center; */
+    font-family: 'Poppins';
+    font-size: 15px;
+    background: var(--tooltip-color);
+    border-radius: .3rem;
+}
+
+.config-switch:hover::before,
+.config-switch:hover::after {
+    --scale: 1;
+}
+
+.config-switch:after {
+    --translate-y: calc(var(--arrow-size));
+    content: '';
+    border: var(--arrow-size) solid transparent;
+    border-bottom-color: var(--tooltip-color);
+    transform-origin: bottom center;
 }

@@ -55,6 +55,12 @@ const getProjects = () => {
                 description: 'Clothing Store demo for my sister :>',
                 logo: '/images/clothing.png',
                 url: projects + '/clothing',
+            },
+            {
+                name: 'Doodle Jumper',
+                description: 'Doodle Jump replica',
+                logo: '/images/doodle.png',
+                url: projects + '/doodle',
             }
         ]
     

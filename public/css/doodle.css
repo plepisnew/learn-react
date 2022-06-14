@@ -1,0 +1,17 @@
+body {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    /* align-items: center; */
+    background: lightpink;
+    overflow: hidden;
+}
+
+.game-panel {
+    margin: 20px;
+    height: 600px;
+    width: 400px;
+    background: white;
+    border: 2px solid black;
+    
+}

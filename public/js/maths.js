@@ -1,17 +1,11 @@
-class Expression {
-    constructor() {
-
-    }
-}
 
 class Equation {
     constructor() {
-
+        
     }
 }
 
 class Variable {
-
     static constant(symbol) {
         this.symbol = symbol;
         this.isConstant = true;
@@ -29,6 +23,11 @@ class Term {
     }
 }
 
+class Expression {
+    constructor() {
+
+    }
+}
 class Operator {
 
     static plus(exp1, exp2) {

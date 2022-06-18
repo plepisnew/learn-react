@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/index.js",
-    "dev": "SET NODE_ENV=development& nodemon src/index.ts -e js,html,css,handlebars",
-    "build": "tsc -p .",
+    "start": "node src/index.js",
+    "dev": "SET NODE_ENV=development& ts-node-dev --respawn src/index.ts",
+    "build": "tsc",
     "git-add": "git add .",
     "git-commit-deploy": "git commit -m 'Deployment'",
     "git-push-deploy": "git push heroku main",
@@ -27,7 +27,9 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
+    "@types/node": "^18.0.0",
     "nodemon": "^2.0.15",
-    "ts-node": "^10.8.1"
+    "ts-node": "^10.8.1",
+    "ts-node-dev": "^2.0.0"
   }
 }

@@ -1,4 +1,5 @@
 .env
+dist
 log
 .VSCodeCounter
 usernames.txt

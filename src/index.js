@@ -25,8 +25,8 @@ app.use(cors({
   origin: "https://plepis.me",
 }))
 
-app.use('/build/', express.static(path.join(__dirname, 'node_modules/three/build')));
-app.use('/jsm/', express.static(path.join(__dirname, 'node_modules/three/examples/jsm')));
+app.use('/build/', express.static(path.join(__dirname, '../node_modules/three/build')));
+app.use('/jsm/', express.static(path.join(__dirname, '../node_modules/three/examples/jsm')));
 
 // Middleware for redirecting to https
 if(process.env.NODE_ENV === 'production') {

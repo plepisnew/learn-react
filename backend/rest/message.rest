@@ -1,0 +1,30 @@
+### GET ALL MESSAGES: 200
+
+GET http://localhost:5000/api/messages/
+
+### GET ALL MESSAGES BY USER: 200
+
+GET http://localhost:5000/api/messages?user=Administrator
+
+### GET ALL MESSAGES BY USER: 200 (NONE FOUND)
+
+GET http://localhost:5000/api/messages?user=Administrato
+
+### POST MESSAGE: 200
+
+POST http://localhost:5000/api/messages HTTP/1.1
+Content-Type: application/json
+
+{
+    "content": "Sample Message",
+    "user": "Admin"
+}
+
+### POST MESSAGE: 400 (BODY DOESN'T CONTAIN MESSAGE)
+
+POST http://localhost:5000/api/messages HTTP/1.1
+Content-Type: application/json
+
+{
+    "content": "Testing"
+}

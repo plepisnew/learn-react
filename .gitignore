@@ -1,5 +1,6 @@
+.VSCodeCounter/
+node_modules/
+dist/
+
+*.log
 .env
-dist
-log
-.VSCodeCounter
-usernames.txt

@@ -1,35 +1,20 @@
 {
-  "name": "noideatbh",
+  "name": "plepis-me",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "SET NODE_ENV=development& nodemon src/index",
-    "build": "tsc",
-    "git-add": "git add .",
-    "git-commit-deploy": "git commit -m 'Deployment'",
-    "git-push-deploy": "git push heroku main",
-    "deploy": "npm run build && npm run git-add && npm run git-commit-deploy && npm run git-push-deploy"
+    "backend-dev": "cd backend && npm run dev",
+    "backend": "cd backend && npm run start",
+    "frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "test": "",
+    "start": "npm run backend"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.0.1",
-    "express": "^4.17.3",
-    "express-handlebars": "^6.0.6",
-    "moment": "^2.29.3",
-    "mongoose": "^6.3.3",
-    "morgan": "^1.10.0",
-    "three": "^0.140.2"
-  },
   "devDependencies": {
-    "@types/express": "^4.17.13",
-    "@types/node": "^18.0.0",
-    "nodemon": "^2.0.15",
-    "ts-node": "^10.8.1",
-    "ts-node-dev": "^2.0.0"
+    "@types/styled-components": "^5.1.26"
   }
 }

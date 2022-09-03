@@ -1,0 +1,47 @@
+[
+    {
+        "name": "Pogulum: Twitch Clip Scraper",
+        "description": "Fetch, edit and upload clips using the Twitch API",
+        "url": "/projects/pogulum",
+        "logo": "projects/pogulum.png",
+        "legacy": true
+    },
+    {
+        "name": "Tetris",
+        "description": "Plain old Tetris",
+        "url": "/projects/tetris",
+        "logo": "projects/tetris.png",
+        "legacy": true
+    },
+    {
+        "name": "Collisions",
+        "description": "Simple 2D sphere collision simulator with configurable gravity, friction and mass",
+        "url": "/projects/collisions",
+        "logo": "projects/collisions.png",
+        "legacy": true
+    },
+    {
+        "name": "Rubiks Cube Solver",
+        "description": "Simulate the behavior of an NxN Rubiks cube and solve it",
+        "url": "/projects/rubiks",
+        "logo": "projects/rubiks.png"
+    },
+    {
+        "name": "Doodle Jumper",
+        "description": "Plain old Doodle Jumper (with some mario artifacts)",
+        "url": "/projects/doodle",
+        "logo": "projects/doodle.png"
+    },
+    {
+        "name": "Mathematica",
+        "description": "Mathematics Simulator: Expression and Equation solver and grapher",
+        "url": "/projects/math",
+        "logo": "projects/math.png"
+    },
+    {
+        "name": "It's all good man",
+        "description": "now saul can call anonymously in 3 dimensions",
+        "url": "https://www.youtube.com/watch?v=MhRXqqUFYoU",
+        "logo": "saul.mp4"
+    }
+]

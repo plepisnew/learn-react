@@ -1,0 +1,59 @@
+[
+    {
+        "name": "cancerMode",
+        "description": "Point of rotation for each piece is wrong",
+        "type": "boolean"
+    },
+    {
+        "name": "shadowMode",
+        "description": "All pieces are colored black",
+        "type": "boolean"
+    },
+    {
+        "name": "placeOnMoveDown",
+        "description": "Moving a block down while unable to, will place the block",
+        "type": "boolean"
+    },
+    {
+        "name": "projectionOpacity",
+        "description": "Alpha level of piece projections",
+        "type": "number",
+        "min": 0,
+        "max": 1
+    },
+    {
+        "name": "playerDownFrameDelay",
+        "description": "Number of frames until pieces move down after rotation",
+        "type": "number",
+        "min": 0,
+        "max": 5000
+    },
+    {
+        "name": "keyPressFrameDelay",
+        "description": "Number of frames until piece continues to move after first key press",
+        "type": "number",
+        "min": 0,
+        "max": 200
+    },
+    {
+        "name": "framesPerKeyHandle",
+        "description": "Number of frames after which key events are hanndled",
+        "type": "number",
+        "min": 1,
+        "max": 20
+    },
+    {
+        "name": "timePerDownMoveMillis",
+        "description": "Interval in miliseconds between tetris down-falls",
+        "type": "number",
+        "min": 100,
+        "max": 5000
+    },
+    {
+        "name": "moveRightOnSpawn",
+        "description": "Number of tiles to move piecs to the right upon spawn",
+        "type": "number",
+        "min": 0,
+        "max": 6
+    }
+]

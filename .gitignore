@@ -3,3 +3,4 @@ dist
 log
 .VSCodeCounter
 usernames.txt
+node_modules/

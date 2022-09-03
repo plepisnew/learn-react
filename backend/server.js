@@ -110,6 +110,6 @@ class App {
 new App({
     failurePrefix: '[ :< ]',
     successPrefix: '[ :> ]',
-    port: process.env.VITE_PORT,
+    port: process.env.PORT,
     dbUri: process.env.MONGODB_URI,
 }).start();

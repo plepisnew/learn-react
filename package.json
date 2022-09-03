@@ -3,9 +3,6 @@
   "description": "Personal Portfolio of Ansis Plepis",
   "version": "1.0.0",
   "main": "index.js",
-  "engines": {
-    "node": "16.13.2"
-  },
   "scripts": {
     "postinstall": "(cd backend && npm install) && (cd frontend && npm install) && npm run build",
     "backend-dev": "cd backend && npm run dev",

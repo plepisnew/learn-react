@@ -11,7 +11,7 @@
     "backend": "cd backend && npm run start",
     "frontend": "cd frontend && npm run dev",
     "deploy": "(git add .) && (git commit -m \"deployment\") && (git push heroku main)",
-    "postinstall": "(cd backend && npm install) && (cd frontend && npm install) && npm run build",
+    "postinstall": "(cd backend && npm install) && (cd frontend && npm install)",
     "build": "cd frontend && npm run build",
     "test": "",
     "start": "npm run backend"

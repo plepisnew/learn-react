@@ -15,16 +15,16 @@
       "react": "^18.2.0",
       "react-dom": "^18.2.0",
       "react-router-dom": "^6.3.0",
-      "styled-components": "^5.3.5"
+      "styled-components": "^5.3.5",
+      "typescript": "^4.6.4",
+      "@types/node": "^18.7.13",
+      "@types/react": "^18.0.17",
+      "@types/react-dom": "^18.0.6",
+      "@types/styled-components": "^5.1.26",
+      "@vitejs/plugin-react": "^2.0.1",
+      "vite": "^3.0.7",
+      "vite-tsconfig-paths": "^3.5.0"
     },
     "devDependencies": {
-        "typescript": "^4.6.4",
-        "@types/node": "^18.7.13",
-        "@types/react": "^18.0.17",
-        "@types/react-dom": "^18.0.6",
-        "@types/styled-components": "^5.1.26",
-        "@vitejs/plugin-react": "^2.0.1",
-        "vite": "^3.0.7",
-        "vite-tsconfig-paths": "^3.5.0"
   }
 }

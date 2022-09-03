@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "tsc": "./node_modules/typescript/bin/tsc",
-    "build": "npm run tsc && vite build",
+    "build": "./node_modules/typescript/bin/tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

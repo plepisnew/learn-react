@@ -7,7 +7,7 @@
     "node": "16.13.2"
   },
   "scripts": {
-    "postinstall": "(cd backend && npm install) && (cd frontend && npm install)",
+    "postinstall": "(cd backend && npm install) && (cd frontend && npm install) && npm run build",
     "backend-dev": "cd backend && npm run dev",
     "backend": "cd backend && npm run start",
     "frontend": "cd frontend && npm run dev",

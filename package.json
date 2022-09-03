@@ -7,10 +7,11 @@
     "node": "16.x"
   },
   "scripts": {
-    "postinstall": "(cd backend && npm install) && (cd frontend && npm install) && npm run build",
     "backend-dev": "cd backend && npm run dev",
     "backend": "cd backend && npm run start",
     "frontend": "cd frontend && npm run dev",
+    "deploy": "(git add .) && (git commit -m \"deployment\") && (git push heroku main)",
+    "postinstall": "(cd backend && npm install) && (cd frontend && npm install) && npm run build",
     "build": "cd frontend && npm run build",
     "test": "",
     "start": "npm run backend"

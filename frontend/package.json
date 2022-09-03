@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "tsc": "./frontend/node_modules/typescript/bin/tsc",
+    "tsc": "./node_modules/typescript",
     "build": "npm run tsc && vite build",
     "preview": "vite preview"
   },

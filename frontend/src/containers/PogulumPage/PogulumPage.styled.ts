@@ -1,14 +1,13 @@
 import styled from 'styled-components';
 
 const StyledClipCard = styled.div`
-
     & {
         display: flex;
         height: 80px;
         border-radius: 15px;
         overflow: hidden;
         box-shadow: 1px 1px 2px rgb(40, 40, 40);
-        background: #673AB7;
+        background: #673ab7;
         color: white;
     }
 
@@ -39,15 +38,12 @@ const StyledClipCard = styled.div`
         font-weight: 500;
         fonnt-size: 18px;
     }
-    
-`
+`;
 
-const StyledInputPanel = styled.div`
-    
-`
+const StyledInputPanel = styled.div``;
 
 const StyledUserPanel = styled.div`
     margin: 20px;
-`
+`;
 
 export { StyledClipCard, StyledInputPanel, StyledUserPanel };

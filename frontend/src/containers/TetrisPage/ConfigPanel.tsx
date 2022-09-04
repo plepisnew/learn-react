@@ -1,20 +1,25 @@
-import React from 'react'
+import React from 'react';
 import { StyledConfigPanel } from './TetrisPage.styled';
 import Configurable from './Configurable';
 import configurables from 'data/configurables.json';
 
 const ConfigPanel: React.FC = () => {
-
     const createConfigurables = () => {
-        return (<></>)
-    }
+        return <></>;
+    };
 
     return (
         <StyledConfigPanel>
             <div className="config-header">
-                <p className="config-header-title">What? Configurable Variables</p>
-                <p className="config-header-title">Why? Because it makes testing easier</p>
-                <p className="config-header-title">How? You'll figure it out</p>
+                <p className="config-header-title">
+                    What? Configurable Variables
+                </p>
+                <p className="config-header-title">
+                    Why? Because it makes testing easier
+                </p>
+                <p className="config-header-title">
+                    How? You&apos;ll figure it out
+                </p>
             </div>
 
             <div className="config-scrollbar">
@@ -26,5 +31,5 @@ const ConfigPanel: React.FC = () => {
             </div>
         </StyledConfigPanel>
     );
-}
+};
 export default ConfigPanel;

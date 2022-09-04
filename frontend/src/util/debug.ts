@@ -10,7 +10,7 @@ export const bubblesDebug = {
      * Log the array of bubbles to the console
      */
     logBubbles: false,
-}
+};
 
 export const mathDebug = {
     /**
@@ -22,4 +22,4 @@ export const mathDebug = {
      * i.e. `sqrt(5)` has value `2.23...` but its representation will remain `sqrt(5) `
      */
     lazyCalculationDecimalDigits: 5,
-}
+};

@@ -1,18 +1,18 @@
-import { Operator, operators } from './model/Operator';
+import { Operator } from './model/Operator';
 import { Expression, Symbol } from './model/Expression';
-import { 
+import {
     stringToExpression,
     expressionToClientText,
     parenthesize,
-    compare
+    compare,
 } from './logic/ExpressionHandler';
 
-export { 
+export {
     Operator,
     Expression,
     Symbol,
     stringToExpression,
     expressionToClientText,
     parenthesize,
-    compare
+    compare,
 };

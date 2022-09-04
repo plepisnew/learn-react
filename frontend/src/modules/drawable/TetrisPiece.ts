@@ -1,18 +1,13 @@
 import { tetris } from 'util/constants';
 
 class Block {
-
     x: number;
     y: number;
     w: number;
     h: number;
     fill: string;
 
-    constructor(
-        x: number,
-        y: number,
-        fill: string
-        ) {
+    constructor(x: number, y: number, fill: string) {
         this.x = x;
         this.y = y;
         this.w = tetris.cellSize;
@@ -22,21 +17,18 @@ class Block {
 }
 
 export default class TetrisPiece {
-
     blocks: Block[];
     x: number;
     y: number;
 
-    constructor(
-        blocks: Block[]
-        ) {
+    constructor(blocks: Block[]) {
         this.x = 0;
         this.y = 0;
         this.blocks = blocks;
     }
 
     draw(context: CanvasRenderingContext2D) {
-        this.blocks.forEach(block => {
+        this.blocks.forEach((block) => {
             context.beginPath();
             context.fillStyle = block.fill;
             context.strokeStyle = 'black';
@@ -52,11 +44,15 @@ export default class TetrisPiece {
     }
 
     move(direction: string) {
-        switch(direction.toLowerCase()) {
-            case 'u': return this.y -= 1;
-            case 'd': return this.y += 1;
-            case 'l': return this.x -= 1;
-            case 'r': return this.x += 1;
+        switch (direction.toLowerCase()) {
+            case 'u':
+                return (this.y -= 1);
+            case 'd':
+                return (this.y += 1);
+            case 'l':
+                return (this.x -= 1);
+            case 'r':
+                return (this.x += 1);
         }
     }
 
@@ -73,8 +69,8 @@ const colors = {
     cyan: 'rgb(0, 229, 255)',
     blue: 'rgb(48, 79, 254)',
     orange: 'rgb(245, 124, 0)',
-    purple: 'rgb(142, 36, 170)'
-}
+    purple: 'rgb(142, 36, 170)',
+};
 
 export const pieces = [
     /**
@@ -140,4 +136,4 @@ export const pieces = [
         new Block(1, 0, colors.purple),
         new Block(2, 1, colors.purple),
     ]),
-]
+];

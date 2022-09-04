@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
+/* eslint @typescript-eslint/no-explicit-any: 0 */
 const usePost = (url: string, body: any) => {
-
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -11,19 +11,23 @@ const usePost = (url: string, body: any) => {
 
     useEffect(() => {
         setLoading(true);
-        axios.post(url, body, { signal: controller.signal }).then(res => {
-            setData(res.data);
-        }).catch(err => {
-            setError(err);
-            console.log(err);
-        }).finally(() => {
-            setLoading(false);
-        });
+        axios
+            .post(url, body, { signal: controller.signal })
+            .then((res) => {
+                setData(res.data);
+            })
+            .catch((err) => {
+                setError(err);
+                console.log(err);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
 
         return () => controller.abort();
     }, [url]);
 
     return { data, loading, error };
-}
+};
 
 export default usePost;

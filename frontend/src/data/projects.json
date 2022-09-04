@@ -39,6 +39,30 @@
         "logo": "projects/math.png"
     },
     {
+        "name": "Game of Life",
+        "description": "John Conway's Game of Life with custom rules",
+        "url": "/projects/gol",
+        "logo": "projects/gol.png"
+    },
+    {
+        "name": "Sudoku",
+        "description": "Plain old Sudoku",
+        "url": "/projects/sudoku",
+        "logo": "projects/sudoku.png"
+    },
+    {
+        "name": "Data Sorter",
+        "description": "Visualize different sorting algorithms in action",
+        "url": "/projects/sort",
+        "logo": "projects/sort.png"
+    },
+    {
+        "name": "Señorita el Pepe de Mikel",
+        "description": "cement das conk creet baybee",
+        "url": "",
+        "logo": "projects/michael.png"
+    },
+    {
         "name": "It's all good man",
         "description": "now saul can call anonymously in 3 dimensions",
         "url": "https://www.youtube.com/watch?v=MhRXqqUFYoU",

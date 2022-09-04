@@ -9,7 +9,6 @@ interface Props {
 }
 
 const NavItem: React.FC<Props> = (props: Props) => {
-
     return (
         <Link
             className={`nav-link ${props.selected ? 'selected-link' : ''}`}
@@ -19,7 +18,7 @@ const NavItem: React.FC<Props> = (props: Props) => {
             {props.title}
         </Link>
     );
-}
+};
 
 export { Props };
 export default NavItem;

@@ -5,7 +5,6 @@ const blueColor = '#039BE5';
 const darkRedColor = '#C2185B';
 
 export const StyledTetrisPage = styled.div`
-
     & {
         display: flex;
     }
@@ -13,11 +12,9 @@ export const StyledTetrisPage = styled.div`
     * {
         font-family: VT323;
     }
-
-`
+`;
 
 export const StyledInfoPanel = styled.div`
-
     & {
         flex: 1;
         background: ${redColor};
@@ -32,11 +29,9 @@ export const StyledInfoPanel = styled.div`
     a {
         font-size: 24px;
     }
-
-`
+`;
 
 export const StyledGamePanel = styled.div`
-
     & {
         flex: 2;
         background: ${blueColor};
@@ -49,11 +44,9 @@ export const StyledGamePanel = styled.div`
         background: white;
         border: 4px solid black;
     }
-
-`
+`;
 
 export const StyledConfigPanel = styled.div`
-
     & {
         flex: 1;
         background: ${redColor};
@@ -64,24 +57,18 @@ export const StyledConfigPanel = styled.div`
     p {
         font-size: 24px;
     }
-
-`
+`;
 
 export const StyledConfigurable = styled.div`
-
     .config-title {
-
     }
 
     .config-description {
-
     }
 
     .config-checkbox {
-
     }
 
     .config-number {
-        
     }
-`
+`;

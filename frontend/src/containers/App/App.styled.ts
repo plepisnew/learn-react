@@ -24,24 +24,35 @@ export const StyledApp = createGlobalStyle`
     }
 
     .navpage {
-        padding-top: ${ui.header.height};
-        box-sizing: border-box;
-        height: 100vh;
-        width: 100vw;
+        position: absolute;
+        top: ${ui.header.height};
+        left: 0;
+        right: 0;
+        bottom: 0;
     }
 
-`
+    .transition-container {
+        position: fixed;
+        z-index: 1;
+        top: ${ui.header.height};
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+`;
 
 export const StyledHeader = styled.div`
     & {
         width: 100%;
         height: ${ui.header.height};
         position: fixed;
+        z-index: 1;
         background: rgb(20, 20, 20);
         display: flex;
         align-items: center;
         padding: 10px;
-    }    
+    }
 
     .logo-image {
         max-width: 50px;
@@ -83,7 +94,7 @@ export const StyledHeader = styled.div`
     }
 
     .selected-link {
-        color: #66BB6A;
-        border-bottom: 1px solid #66BB6A;
+        color: #66bb6a;
+        border-bottom: 1px solid #66bb6a;
     }
-`
+`;

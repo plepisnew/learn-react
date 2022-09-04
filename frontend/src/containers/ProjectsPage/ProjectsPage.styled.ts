@@ -1,12 +1,6 @@
 import styled from 'styled-components';
-import { ui } from 'util/constants';
 
 export const StyledProjectsPage = styled.div`
-
-    body {
-        background: red;
-    }
-
     .project-container {
         margin: 10px;
         flex: 1;
@@ -55,7 +49,7 @@ export const StyledProjectsPage = styled.div`
         border: 1px solid black;
         transition: 300ms border;
     }
-    
+
     .legacy-link:hover {
         border: 1px solid white;
     }
@@ -84,7 +78,7 @@ export const StyledProjectsPage = styled.div`
         }
     }
 
-    .projects-container {    
+    .projects-container {
         display: grid;
     }
-`
+`;

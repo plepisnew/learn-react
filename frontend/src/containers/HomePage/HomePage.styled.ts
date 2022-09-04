@@ -5,6 +5,7 @@ export const StyledSidebar = styled.div`
     & {
         color: white;
         position: fixed;
+        z-index: 1;
         left: -${ui.sidebar.width};
         top: ${ui.header.height};
         bottom: 0;
@@ -12,7 +13,6 @@ export const StyledSidebar = styled.div`
         background: rgb(50, 50, 50);
         border-right: ${ui.sidebar.borderWidth} solid black;
         box-sizing: border-box;
-        z-index: 1;
         transition: left 1s;
         padding: 10px;
         font-family: 'Poppins';
@@ -70,8 +70,7 @@ export const StyledSidebar = styled.div`
         justify-content: space-evenly;
         margin: 10px;
     }
-
-`
+`;
 
 export const StyledWelcome = styled.div`
     .welcome-text {
@@ -90,7 +89,7 @@ export const StyledWelcome = styled.div`
         display: flex;
         align-items: center;
     }
-`
+`;
 
 export const StyledSlider = styled.div`
     margin: 5px;
@@ -99,10 +98,9 @@ export const StyledSlider = styled.div`
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
-`
+`;
 
 export const StyledChatbox = styled.div`
-
     & {
         margin: 5px;
         vertical-align: top;
@@ -207,4 +205,4 @@ export const StyledChatbox = styled.div`
     .message-content {
         flex: 1;
     }
-`
+`;

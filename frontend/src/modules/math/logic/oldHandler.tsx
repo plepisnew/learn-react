@@ -27,10 +27,10 @@
 //                     const firstElement = simpleElements[operatorIndex - 1];
 //                     const secondElement = simpleElements[operatorIndex + 1];
 
-//                     const exp1 = typeof firstElement === 'string' ? 
+//                     const exp1 = typeof firstElement === 'string' ?
 //                         new Symbol(firstElement, parseInt(firstElement) || undefined) :
 //                         firstElement;
-                        
+
 //                     const exp2 = typeof secondElement === 'string' ?
 //                         new Symbol(secondElement, parseInt(secondElement) || undefined) :
 //                         secondElement;
@@ -40,7 +40,7 @@
 //                                             .operand(exp2)
 //                                             .operator(operator)
 //                                             .build();
-                    
+
 //                     return exprArray.splice(left, right - left + 1, exp);
 //                 }
 //             });

@@ -11,23 +11,22 @@ import TetrisPage from 'containers/TetrisPage';
 import { StyledApp } from './App.styled';
 
 const App: React.FC = () => {
-
     return (
         <BrowserRouter>
             <StyledApp />
             <Header />
             <Routes>
-                <Route path='/' element={<HomePage />}/>
-                <Route path='/projects' element={<ProjectsPage />}/>
-                <Route path='/about' element={<AboutPage />}/>
-                <Route path='/articles' element={<ArticlePage />}/>
-                <Route path='/dev' element={<DevPage />}/>
-                <Route path='/projects/pogulum' element={<PogulumPage />} />
-                <Route path='/projects/tetris' element={<TetrisPage />} />
-                <Route path='/projects/math' element={<DevPage />} />
+                <Route path="/" element={<HomePage />} />
+                <Route path="/projects" element={<ProjectsPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/articles" element={<ArticlePage />} />
+                <Route path="/dev" element={<DevPage />} />
+                <Route path="/projects/pogulum" element={<PogulumPage />} />
+                <Route path="/projects/tetris" element={<TetrisPage />} />
+                <Route path="/projects/math" element={<DevPage />} />
             </Routes>
         </BrowserRouter>
-    );    
-}
+    );
+};
 
 export default App;

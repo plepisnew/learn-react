@@ -1,7 +1,7 @@
-import React from 'react'
+import React from 'react';
 
 const ArticlePage: React.FC = () => {
-    return (<></>);
-}
+    return <></>;
+};
 
 export default ArticlePage;

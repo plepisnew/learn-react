@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import { StyledSlider } from './HomePage.styled';
 
 interface Props {
@@ -14,14 +14,14 @@ const Slider: React.FC<Props> = (props: Props) => {
         <StyledSlider>
             <span>{props.title}</span>
             <input
-                type='range'
+                type="range"
                 min={props.min}
                 max={props.max}
                 value={props.default}
                 onChange={props.onChange}
-                className='slider float-input'
+                className="slider float-input"
             />
         </StyledSlider>
     );
-}
+};
 export default Slider;

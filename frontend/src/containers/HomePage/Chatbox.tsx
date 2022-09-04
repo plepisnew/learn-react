@@ -6,6 +6,12 @@ import axios from 'axios';
 import { StyledChatbox } from './HomePage.styled';
 import { chat } from 'util/constants';
 
+interface Message {
+    content: string;
+    user: string;
+    createdAt: string;
+}
+
 const Chatbox: React.FC = () => {
     const [open, setOpen] = useState(false);
 
@@ -13,7 +19,10 @@ const Chatbox: React.FC = () => {
     const inputRef = useRef<HTMLInputElement>(null);
 
     const url = chat.messagesUrl;
-    const { apparentData, loading } = useLoopFetch(url, chat.latencyMillis);
+    const { apparentData, loading } = useLoopFetch<Message>(
+        url,
+        chat.latencyMillis
+    );
 
     const [currentUser] = useState(
         usernames[Math.floor(Math.random() * usernames.length)]

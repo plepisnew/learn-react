@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import sleep from 'util/sleep';
 
-const useLoopFetch = (
+const useLoopFetch = <T>(
     url: string,
     delayMillis: number,
     options: {
@@ -13,8 +13,8 @@ const useLoopFetch = (
         finalCallback?: () => void;
     } = {}
 ) => {
-    const [data, setData] = useState<string[]>();
-    const [apparentData, setApparentData] = useState<string[]>();
+    const [data, setData] = useState<T[]>();
+    const [apparentData, setApparentData] = useState<T[]>();
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState(null);
 

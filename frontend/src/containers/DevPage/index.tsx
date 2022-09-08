@@ -1,5 +1,5 @@
 /* eslint @typescript-eslint/no-unused-vars: 0 */
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import {
     stringToExpression,
     expressionToClientText,
@@ -8,18 +8,25 @@ import {
     Operator,
     parenthesize,
 } from 'modules/math/Math';
+import Canvas from 'components/ui/Canvas';
+import useFrameLoop from 'hooks/useFrameLoop';
+import Capybara from 'components/misc/Capybara';
 
 const DevPage: React.FC = () => {
-    const x = new Symbol('x', undefined);
-    const exp: Expression = Expression.builder()
-        .operand(x)
-        .operator('^')
-        .operand(x)
-        .build();
-
+    // const x = new Symbol('x', undefined);
+    // const exp: Expression = Expression.builder()
+    //     .operand(x)
+    //     .operator('^')
+    //     .operand(x)
+    //     .build();
     // console.log(import.meta.env);
+    // return <div className="navpage">{expressionToClientText(exp)}</div>;
 
-    return <div className="navpage">{expressionToClientText(exp)}</div>;
+    return (
+        <div className="navpage" style={{ paddingTop: '20px' }}>
+            <Capybara height={50} />;
+        </div>
+    );
 };
 
 export default DevPage;

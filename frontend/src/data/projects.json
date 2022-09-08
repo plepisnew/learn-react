@@ -60,7 +60,8 @@
         "name": "Señorita el Pepe de Mikel",
         "description": "cement das conk creet baybee",
         "url": "",
-        "logo": "projects/michael.png"
+        "logo": "projects/michael.png",
+        "capybara": true
     },
     {
         "name": "It's all good man",

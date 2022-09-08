@@ -12,6 +12,8 @@
         "pretty": "npx prettier --write \"**/*.{ts,tsx}\""
     },
     "dependencies": {
+        "@ffmpeg/core": "^0.11.0",
+        "@ffmpeg/ffmpeg": "^0.11.4",
         "@types/node": "^18.7.13",
         "@types/react": "^18.0.17",
         "@types/react-dom": "^18.0.6",

@@ -1,6 +1,9 @@
+/**
+ * Model for Tetris game and array of all possible tetris pieces
+ */
 import { tetris } from 'util/constants';
 
-class Block {
+export class Block {
     x: number;
     y: number;
     w: number;
@@ -14,9 +17,23 @@ class Block {
         this.h = tetris.cellSize;
         this.fill = fill;
     }
+
+    draw(ctx: CanvasRenderingContext2D): void {
+        ctx.fillStyle = this.fill;
+        ctx.strokeStyle = 'black';
+        ctx.beginPath();
+        ctx.rect(
+            this.x * tetris.cellSize,
+            this.y * tetris.cellSize,
+            this.w,
+            this.h
+        );
+        ctx.fill();
+        ctx.stroke();
+    }
 }
 
-export default class TetrisPiece {
+export class TetrisPiece {
     blocks: Block[];
     x: number;
     y: number;
@@ -27,7 +44,7 @@ export default class TetrisPiece {
         this.blocks = blocks;
     }
 
-    draw(context: CanvasRenderingContext2D) {
+    draw(context: CanvasRenderingContext2D): void {
         this.blocks.forEach((block) => {
             context.beginPath();
             context.fillStyle = block.fill;
@@ -43,26 +60,21 @@ export default class TetrisPiece {
         });
     }
 
-    move(direction: string) {
-        switch (direction.toLowerCase()) {
-            case 'u':
-                return (this.y -= 1);
-            case 'd':
-                return (this.y += 1);
-            case 'l':
-                return (this.x -= 1);
-            case 'r':
-                return (this.x += 1);
-        }
-    }
-
-    moveTo(x: number, y: number) {
-        this.x = x;
-        this.y = y;
+    destruct(): Block[] {
+        const destructedBlocks: Block[] = [];
+        this.blocks.forEach((block) => {
+            const destructedBlock = new Block(
+                this.x + block.x,
+                this.y + block.y,
+                block.fill
+            );
+            destructedBlocks.push(destructedBlock);
+        });
+        return destructedBlocks;
     }
 }
 
-const colors = {
+export const colors = {
     red: 'rgb(255, 0, 0)',
     lime: 'rgb(27, 255, 8)',
     yellow: 'rgb(255, 255, 0)',
@@ -104,10 +116,10 @@ export const pieces = [
      * Cyan bar shape
      */
     new TetrisPiece([
-        new Block(0, 0, colors.cyan),
-        new Block(1, 0, colors.cyan),
-        new Block(2, 0, colors.cyan),
-        new Block(3, 0, colors.cyan),
+        new Block(0, 1, colors.cyan),
+        new Block(1, 1, colors.cyan),
+        new Block(2, 1, colors.cyan),
+        new Block(3, 1, colors.cyan),
     ]),
     /**
      * Blue L shape

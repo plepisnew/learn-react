@@ -6,11 +6,19 @@ export const StyledProjectsPage = styled.div`
         flex: 1;
         background: rgb(240, 240, 240);
         border-radius: 10px;
-        overflow: hidden;
         box-shadow: 1px 1px 5px rgb(150, 150, 150);
         position: relative;
+    }
+
+    .project-media,
+    .project-content {
         opacity: 0.8;
         transition: opacity 500ms;
+    }
+
+    .project-media:hover,
+    .project-content:hover {
+        opacity: 1;
     }
 
     .project-container:active {

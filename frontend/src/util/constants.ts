@@ -132,7 +132,7 @@ export const tetris = {
     /**
      * Messes up each piece's center of rotation
      */
-    cancer: false,
+    cancerMode: false,
     /**
      * Turns all tetris pieces black
      */
@@ -194,4 +194,19 @@ export const transition = {
      * Number of columns in which to split tiles of equal length
      */
     columns: 20,
+};
+
+export const capybara = {
+    /**
+     * Source of Capybara image
+     */
+    src: '/images/game/capybara_11.png',
+    /**
+     * Number of frames in the image
+     */
+    frames: 11,
+    /**
+     * Number of loop frames per single capybara frame
+     */
+    frameSkip: 5,
 };

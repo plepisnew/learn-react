@@ -4,17 +4,28 @@ import InfoPanel from './InfoPanel';
 import ConfigPanel from './ConfigPanel';
 import GamePanel from './GamePanel';
 import TetrisContext from 'context/TetrisContext';
+import { tetris } from 'util/constants';
 
 const TetrisPage: React.FC = () => {
-    const [cancerMode, setCancerMode] = useState(false);
-    const [shadowMode, setShadowMode] = useState(false);
-    const [placeOnMoveDown, setPlaceOnMoveDown] = useState(false);
-    const [projectionOpacity, setProjectionOpacity] = useState(0.4);
-    const [rotationFrameDelay, setRotationFrameDelay] = useState(100);
-    const [keyPressFrameDelay, setKeyPressFrameDelay] = useState(100);
-    const [framesPerKeyHandle, setFramesPerKeyHandle] = useState(2);
-    const [millisPerDownMove, setMillisPerDownMove] = useState(2000);
-    const [moveRightOnSpawn, setMoveRightOnSpawn] = useState(3);
+    const [cancerMode, setCancerMode] = useState(tetris.cancerMode);
+    const [shadowMode, setShadowMode] = useState(tetris.shadowMode);
+    const [placeOnMoveDown, setPlaceOnMoveDown] = useState(
+        tetris.placeOnMoveDown
+    );
+    const [projectionOpacity, setProjectionOpacity] = useState(
+        tetris.projectionOpacity
+    );
+    const [rotationDelay, setRotationDelay] = useState(tetris.rotationDelay);
+    const [keyPressFrameDelay, setKeyPressFrameDelay] = useState(
+        tetris.keyPressFrameDelay
+    );
+    const [framesPerKeyHandle, setFramesPerKeyHandle] = useState(
+        tetris.framesPerKeyHandle
+    );
+    const [fallInterval, setFallInterval] = useState(tetris.fallInterval);
+    const [moveRightOnSpawn, setMoveRightOnSpawn] = useState(
+        tetris.moveRightOnSpawn
+    );
 
     return (
         <StyledTetrisPage className="navpage">
@@ -28,14 +39,14 @@ const TetrisPage: React.FC = () => {
                     setPlaceOnMoveDown,
                     projectionOpacity,
                     setProjectionOpacity,
-                    rotationFrameDelay,
-                    setRotationFrameDelay,
+                    rotationDelay,
+                    setRotationDelay,
                     keyPressFrameDelay,
                     setKeyPressFrameDelay,
                     framesPerKeyHandle,
                     setFramesPerKeyHandle,
-                    millisPerDownMove,
-                    setMillisPerDownMove,
+                    fallInterval,
+                    setFallInterval,
                     moveRightOnSpawn,
                     setMoveRightOnSpawn,
                 }}

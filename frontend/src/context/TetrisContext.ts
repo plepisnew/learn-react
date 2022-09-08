@@ -9,14 +9,14 @@ interface ContextState {
     setPlaceOnMoveDown: React.Dispatch<React.SetStateAction<boolean>>;
     projectionOpacity: number;
     setProjectionOpacity: React.Dispatch<React.SetStateAction<number>>;
-    rotationFrameDelay: number;
-    setRotationFrameDelay: React.Dispatch<React.SetStateAction<number>>;
+    rotationDelay: number;
+    setRotationDelay: React.Dispatch<React.SetStateAction<number>>;
     keyPressFrameDelay: number;
     setKeyPressFrameDelay: React.Dispatch<React.SetStateAction<number>>;
     framesPerKeyHandle: number;
     setFramesPerKeyHandle: React.Dispatch<React.SetStateAction<number>>;
-    millisPerDownMove: number;
-    setMillisPerDownMove: React.Dispatch<React.SetStateAction<number>>;
+    fallInterval: number;
+    setFallInterval: React.Dispatch<React.SetStateAction<number>>;
     moveRightOnSpawn: number;
     setMoveRightOnSpawn: React.Dispatch<React.SetStateAction<number>>;
 }

@@ -156,7 +156,7 @@ export const tetris = {
     /**
      * Number of frames after which key events are handled
      */
-    framesPerKeyHandle: 2,
+    framesPerKeyHandle: 1,
     /**
      * Time in milliseconds between tetris piece fall-downs
      */

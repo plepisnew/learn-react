@@ -44,10 +44,10 @@ export class TetrisPiece {
         this.blocks = blocks;
     }
 
-    draw(context: CanvasRenderingContext2D): void {
+    draw(context: CanvasRenderingContext2D, opacity: number): void {
         this.blocks.forEach((block) => {
             context.beginPath();
-            context.fillStyle = block.fill;
+            context.fillStyle = `${block.fill.split(')')[0]}, ${opacity})`;
             context.strokeStyle = 'black';
             context.rect(
                 (this.x + block.x) * tetris.cellSize,
@@ -58,6 +58,11 @@ export class TetrisPiece {
             context.fill();
             context.stroke();
         });
+    }
+
+    moveRight(x: number) {
+        this.x += x;
+        return this;
     }
 
     destruct(): Block[] {

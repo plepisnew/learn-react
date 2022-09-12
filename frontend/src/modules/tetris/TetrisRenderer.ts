@@ -23,9 +23,10 @@ export const drawGrid = (context: CanvasRenderingContext2D) => {
 
 export const drawPiece = (
     context: CanvasRenderingContext2D,
-    piece: TetrisPiece
+    piece: TetrisPiece,
+    opacity: number
 ) => {
-    piece.draw(context);
+    piece.draw(context, opacity);
 };
 
 export const drawBoard = (

@@ -40,9 +40,26 @@ export const StyledGamePanel = styled.div`
         justify-content: center;
     }
 
-    .tetris-canvas {
+    .game-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .canvas-container {
+        margin: 5px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    canvas {
         background: white;
         border: 4px solid black;
+    }
+
+    .canvas-footer {
+        font-size: 18px;
+        font-weight: 600;
     }
 `;
 

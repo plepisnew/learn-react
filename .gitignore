@@ -1,4 +1,5 @@
 .VSCodeCounter/
+.vscode/
 node_modules/
 dist/
 *.log

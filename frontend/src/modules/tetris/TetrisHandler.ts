@@ -5,19 +5,20 @@ import { Block, TetrisPiece, pieces } from './TetrisPiece';
 import clone from 'util/clone';
 import React from 'react';
 import { tetris } from 'util/constants';
-import { initialInput, UserInput } from './InputHandler';
+import { handleInput, UserInput } from './InputHandler';
 import { colors } from './TetrisPiece';
+import { clearCanvas, drawBoard, drawGrid, drawPiece } from './TetrisRenderer';
 
-export const randomPiece = (): TetrisPiece => {
-    return clone<TetrisPiece>(
-        pieces[Math.floor(Math.random() * pieces.length)]
-    );
-};
+interface Point {
+    x: number;
+    y: number;
+}
 
 const CollisionTypes = {
     moveLeft: 'MOVE_LEFT',
     moveRight: 'MOVE_RIGHT',
     moveDown: 'MOVE_DOWN',
+    moveAutoDown: 'MOVE_AUTO_DOWN',
     spinLeft: 'SPIN_LEFT',
     spinRight: 'SPIN_RIGHT',
     spinDown: 'SPIN_DOWN',
@@ -29,9 +30,18 @@ const MoveTypes = {
     left: 'LEFT',
     right: 'RIGHT',
     down: 'DOWN',
+    autoDown: 'AUTO_DOWN',
     up: 'UP',
     spin: 'SPIN',
     drop: 'DROP',
+};
+
+const MAX_STACK_SIZE = 5;
+
+export const randomPiece = (initialX = 3): TetrisPiece => {
+    return clone<TetrisPiece>(
+        pieces[Math.floor(Math.random() * pieces.length)]
+    ).moveRight(initialX);
 };
 
 /**
@@ -46,29 +56,125 @@ export const movePiece = (
     piece: TetrisPiece,
     setCurrentPiece: React.Dispatch<React.SetStateAction<TetrisPiece>>,
     board: Block[],
-    direction: string
+    setBoard: React.Dispatch<React.SetStateAction<Block[]>>,
+    direction: string,
+    stackSize = 0,
+    projectionPiece = false
 ): void => {
+    if (stackSize > MAX_STACK_SIZE) return;
+    if (direction === MoveTypes.drop) {
+        let moveDownResult = willColide(piece, board, MoveTypes.autoDown);
+        while (moveDownResult !== CollisionTypes.moveAutoDown) {
+            movePiece(
+                piece,
+                setCurrentPiece,
+                board,
+                setBoard,
+                MoveTypes.autoDown,
+                stackSize,
+                projectionPiece
+            );
+            moveDownResult = willColide(piece, board, MoveTypes.autoDown);
+        }
+        return movePiece(
+            piece,
+            setCurrentPiece,
+            board,
+            setBoard,
+            MoveTypes.autoDown,
+            stackSize,
+            projectionPiece
+        );
+    }
     const collisionResult = willColide(piece, board, direction);
     switch (collisionResult) {
-        case CollisionTypes.moveDown: // moves down into border: place piece
-            placePiece(piece, board);
-            setCurrentPiece(randomPiece());
+        case CollisionTypes.moveAutoDown:
+            if (!projectionPiece) {
+                placePiece(piece, board, setBoard);
+                setCurrentPiece(randomPiece());
+            }
+            return;
+        case CollisionTypes.moveDown: // moves down into border: do nothing
             return;
         case CollisionTypes.moveLeft: // moves left into border: do nothing
             return;
         case CollisionTypes.moveRight: // moves right into border: do nothing
             return;
         case CollisionTypes.spinDown: // rotate down: move up if possible
-            movePiece(piece, setCurrentPiece, board, MoveTypes.up);
+            movePiece(
+                piece,
+                setCurrentPiece,
+                board,
+                setBoard,
+                MoveTypes.up,
+                stackSize + 1
+            );
+            movePiece(
+                piece,
+                setCurrentPiece,
+                board,
+                setBoard,
+                MoveTypes.spin,
+                stackSize + 1
+            );
+
             return;
         case CollisionTypes.spinLeft: // rotate left: move right if possible
-            movePiece(piece, setCurrentPiece, board, MoveTypes.right);
+            movePiece(
+                piece,
+                setCurrentPiece,
+                board,
+                setBoard,
+                MoveTypes.right,
+                stackSize + 1
+            );
+            movePiece(
+                piece,
+                setCurrentPiece,
+                board,
+                setBoard,
+                MoveTypes.spin,
+                stackSize + 1
+            );
+
             return;
         case CollisionTypes.spinRight: // rotate right: move left if possible
-            movePiece(piece, setCurrentPiece, board, MoveTypes.left);
+            movePiece(
+                piece,
+                setCurrentPiece,
+                board,
+                setBoard,
+                MoveTypes.left,
+                stackSize + 1
+            );
+            movePiece(
+                piece,
+                setCurrentPiece,
+                board,
+                setBoard,
+                MoveTypes.spin,
+                stackSize + 1
+            );
+
             return;
         case CollisionTypes.spinUp: // rotate top: move bottom if possible
-            movePiece(piece, setCurrentPiece, board, MoveTypes.down);
+            movePiece(
+                piece,
+                setCurrentPiece,
+                board,
+                setBoard,
+                MoveTypes.down,
+                stackSize + 1
+            );
+            movePiece(
+                piece,
+                setCurrentPiece,
+                board,
+                setBoard,
+                MoveTypes.spin,
+                stackSize + 1
+            );
+
             return;
     }
     movePieceUnsafe(piece, direction); // no collisions: do action
@@ -94,6 +200,9 @@ export const movePieceUnsafe = (
             piece.x++;
             break;
         case MoveTypes.down:
+            piece.y++;
+            break;
+        case MoveTypes.autoDown:
             piece.y++;
             break;
         case MoveTypes.up:
@@ -124,10 +233,36 @@ export const movePieceUnsafe = (
     return piece;
 };
 
-export const placePiece = (piece: TetrisPiece, board: Block[]) => {
+export const checkTetris = (
+    board: Block[],
+    setBoard: React.Dispatch<React.SetStateAction<Block[]>>
+): void => {
+    const blockY = new Map<number, number>();
+    board.forEach((block) => {
+        blockY.set(block.y, (blockY.get(block.y) || 0) + 1);
+    });
+    const deleteY: number[] = [];
+    blockY.forEach((count, y) => {
+        if (count === 10) deleteY.push(y);
+    });
+    setBoard(
+        board.filter((block) => {
+            if (deleteY.includes(block.y)) return false;
+            if (block.y < Math.min(...deleteY)) block.y += deleteY.length;
+            return true;
+        })
+    );
+};
+
+export const placePiece = (
+    piece: TetrisPiece,
+    board: Block[],
+    setBoard: React.Dispatch<React.SetStateAction<Block[]>>
+): void => {
     piece.destruct().forEach((block) => {
         board.push(block);
     });
+    checkTetris(board, setBoard);
 };
 
 /**
@@ -149,6 +284,8 @@ export const willColide = (
     if (point) {
         if (direction === MoveTypes.left) return CollisionTypes.moveLeft;
         if (direction === MoveTypes.right) return CollisionTypes.moveRight;
+        if (direction === MoveTypes.autoDown)
+            return CollisionTypes.moveAutoDown;
         if (direction === MoveTypes.down) return CollisionTypes.moveDown;
         if (direction === MoveTypes.spin) {
             const xCoords = futureBlocks.map((block) => block.x);
@@ -165,13 +302,6 @@ export const willColide = (
     }
     return CollisionTypes.none;
 };
-
-// export const dropPiece = (piece: TetrisPiece, board: Block[]) => {};
-
-interface Point {
-    x: number;
-    y: number;
-}
 
 const collisionPoint = (board: Block[], blocks: Block[]): Point | null => {
     for (let blocksIndex = 0; blocksIndex < blocks.length; blocksIndex++) {
@@ -192,18 +322,25 @@ const collisionPoint = (board: Block[], blocks: Block[]): Point | null => {
 };
 
 interface HandleParams {
+    ctx: CanvasRenderingContext2D;
+    heldCtx: CanvasRenderingContext2D;
+    nextCtx: CanvasRenderingContext2D;
     time: number;
     previousDownMove: React.MutableRefObject<number>;
     frame: number;
-    nextKeyHandle: React.MutableRefObject<{ frame: number; update: boolean }>;
     currentPiece: TetrisPiece;
     setCurrentPiece: React.Dispatch<React.SetStateAction<TetrisPiece>>;
-    input: UserInput;
-    setInput: React.Dispatch<React.SetStateAction<UserInput>>;
+    heldPiece: TetrisPiece | undefined;
+    setHeldPiece: React.Dispatch<React.SetStateAction<TetrisPiece | undefined>>;
+    nextPiece: TetrisPiece;
+    setNextPiece: React.Dispatch<React.SetStateAction<TetrisPiece>>;
     board: Block[];
+    setBoard: React.Dispatch<React.SetStateAction<Block[]>>;
+    input: UserInput;
     fallInterval: number;
     framesPerKeyHandle: number;
     keyPressFrameDelay: number;
+    projectionOpacity: number;
 }
 
 /**
@@ -212,66 +349,103 @@ interface HandleParams {
  * @param parameters.time
  */
 export const handlePieces = ({
+    ctx,
+    heldCtx,
+    nextCtx,
     time,
     previousDownMove,
     frame,
-    nextKeyHandle,
     currentPiece,
     setCurrentPiece,
+    heldPiece,
+    setHeldPiece,
+    nextPiece,
+    setNextPiece,
     input,
-    setInput,
     board,
+    setBoard,
     fallInterval,
     framesPerKeyHandle,
     keyPressFrameDelay,
+    projectionOpacity,
 }: HandleParams) => {
+    clearCanvas(ctx);
+    drawGrid(ctx);
+
     if (time - previousDownMove.current > fallInterval) {
         previousDownMove.current = time;
-        movePiece(currentPiece, setCurrentPiece, board, MoveTypes.down);
+        movePiece(
+            currentPiece,
+            setCurrentPiece,
+            board,
+            setBoard,
+            MoveTypes.autoDown
+        );
     }
 
-    if (input.left || input.right || input.down) {
-        // if pressed, dont update nextKeyHandle
-        if (frame > nextKeyHandle.current.frame) {
-            if (input.left)
-                movePiece(currentPiece, setCurrentPiece, board, MoveTypes.left);
-            if (input.right)
-                movePiece(
-                    currentPiece,
-                    setCurrentPiece,
-                    board,
-                    MoveTypes.right
-                );
+    drawPiece(ctx, currentPiece, 1);
+    drawPiece(
+        ctx,
+        (() => {
+            const projectionPiece = clone(currentPiece);
+            movePiece(
+                projectionPiece,
+                setCurrentPiece,
+                board,
+                setBoard,
+                MoveTypes.drop,
+                0,
+                true
+            );
+            return projectionPiece;
+        })(),
+        projectionOpacity
+    );
+    drawBoard(ctx, board);
 
-            if (input.down)
-                movePiece(currentPiece, setCurrentPiece, board, MoveTypes.down);
+    drawPiece(nextCtx, nextPiece, 1);
 
-            if (nextKeyHandle.current.update) {
-                nextKeyHandle.current = {
-                    frame: frame + keyPressFrameDelay,
-                    update: false,
-                };
-            }
-        }
-    } else {
-        // if nothing pressed, update nextKeyHandle
-        nextKeyHandle.current.update = true;
-    }
-
-    if (input.drop) {
-        setInput({ ...input, drop: false });
-        movePiece(currentPiece, setCurrentPiece, board, MoveTypes.drop);
-    }
-
-    // if (input.pause) {
-    // }
-    // if (input.restart) {
-    // }
-    console.log(input.spin);
-    if (input.spin) {
-        setInput({ ...input, spin: false });
-        movePiece(currentPiece, setCurrentPiece, board, MoveTypes.spin);
-    }
-    // if (input.drop) {
-    // }
+    handleInput(frame, framesPerKeyHandle, keyPressFrameDelay, input, {
+        moveRight: () =>
+            movePiece(
+                currentPiece,
+                setCurrentPiece,
+                board,
+                setBoard,
+                MoveTypes.right
+            ),
+        moveLeft: () =>
+            movePiece(
+                currentPiece,
+                setCurrentPiece,
+                board,
+                setBoard,
+                MoveTypes.left
+            ),
+        moveDown: () =>
+            movePiece(
+                currentPiece,
+                setCurrentPiece,
+                board,
+                setBoard,
+                MoveTypes.down
+            ),
+        spin: () =>
+            movePiece(
+                currentPiece,
+                setCurrentPiece,
+                board,
+                setBoard,
+                MoveTypes.spin
+            ),
+        drop: () =>
+            movePiece(
+                currentPiece,
+                setCurrentPiece,
+                board,
+                setBoard,
+                MoveTypes.drop
+            ),
+    });
+    // If one of the lagging keys are pressed, set future handling frame if its time to begin handling
 };

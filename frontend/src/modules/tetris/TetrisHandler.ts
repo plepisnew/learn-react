@@ -7,11 +7,47 @@ import React from 'react';
 import { tetris } from 'util/constants';
 import { handleInput, UserInput } from './InputHandler';
 import { colors } from './TetrisPiece';
-import { clearCanvas, drawBoard, drawGrid, drawPiece } from './TetrisRenderer';
+import {
+    clearCanvas,
+    drawBoard,
+    drawGrid,
+    drawPiece,
+    drawPieceSquare,
+} from './TetrisRenderer';
 
 interface Point {
     x: number;
     y: number;
+}
+
+interface HandleParams {
+    ctx: CanvasRenderingContext2D;
+    heldCtx: CanvasRenderingContext2D;
+    nextCtx: CanvasRenderingContext2D;
+    time: number;
+    frame: number;
+    previousDownMove: React.MutableRefObject<number>;
+    score: number;
+    setScore: React.Dispatch<React.SetStateAction<number>>;
+    currentPiece: TetrisPiece;
+    setCurrentPiece: React.Dispatch<React.SetStateAction<TetrisPiece>>;
+    heldPiece: TetrisPiece | undefined;
+    setHeldPiece: React.Dispatch<React.SetStateAction<TetrisPiece | undefined>>;
+    nextPiece: TetrisPiece;
+    setNextPiece: React.Dispatch<React.SetStateAction<TetrisPiece>>;
+    board: Block[];
+    setBoard: React.Dispatch<React.SetStateAction<Block[]>>;
+    paused: boolean;
+    setPaused: React.Dispatch<React.SetStateAction<boolean>>;
+    restarting: boolean;
+    setRestarting: React.Dispatch<React.SetStateAction<boolean>>;
+    gameOver: boolean;
+    setGameOver: React.Dispatch<React.SetStateAction<boolean>>;
+    input: UserInput;
+    fallInterval: number;
+    framesPerKeyHandle: number;
+    keyPressFrameDelay: number;
+    projectionOpacity: number;
 }
 
 const CollisionTypes = {
@@ -38,6 +74,8 @@ const MoveTypes = {
 
 const MAX_STACK_SIZE = 5;
 
+let global: HandleParams = {} as HandleParams;
+
 export const randomPiece = (initialX = 3): TetrisPiece => {
     return clone<TetrisPiece>(
         pieces[Math.floor(Math.random() * pieces.length)]
@@ -47,51 +85,34 @@ export const randomPiece = (initialX = 3): TetrisPiece => {
 /**
  * Attempts to move a TetrisPiece in a given direction. If a translational collision occurs, nothing happens. If a rotational collision occurs, attempts to move the piece in the direction opposite to the collision direction
  * @param {TetrisPiece} piece Tetris Piece to move
- * @param {React.Dispatch<React.SetStateAction<TetrisPiece>>} setCurrentPiece Current Tetris Piece state setter
- * @param {Block[]} board Current board state
  * @param direction Direction in which to move the Tetris Piece
  * @returns
  */
 export const movePiece = (
     piece: TetrisPiece,
-    setCurrentPiece: React.Dispatch<React.SetStateAction<TetrisPiece>>,
-    board: Block[],
-    setBoard: React.Dispatch<React.SetStateAction<Block[]>>,
     direction: string,
     stackSize = 0,
     projectionPiece = false
 ): void => {
     if (stackSize > MAX_STACK_SIZE) return;
     if (direction === MoveTypes.drop) {
-        let moveDownResult = willColide(piece, board, MoveTypes.autoDown);
+        let moveDownResult = willColide(piece, MoveTypes.autoDown);
         while (moveDownResult !== CollisionTypes.moveAutoDown) {
-            movePiece(
-                piece,
-                setCurrentPiece,
-                board,
-                setBoard,
-                MoveTypes.autoDown,
-                stackSize,
-                projectionPiece
-            );
-            moveDownResult = willColide(piece, board, MoveTypes.autoDown);
+            movePiece(piece, MoveTypes.autoDown, stackSize, projectionPiece);
+            moveDownResult = willColide(piece, MoveTypes.autoDown);
         }
-        return movePiece(
-            piece,
-            setCurrentPiece,
-            board,
-            setBoard,
-            MoveTypes.autoDown,
-            stackSize,
-            projectionPiece
-        );
+        return movePiece(piece, MoveTypes.autoDown, stackSize, projectionPiece);
     }
-    const collisionResult = willColide(piece, board, direction);
+    const collisionResult = willColide(piece, direction);
     switch (collisionResult) {
         case CollisionTypes.moveAutoDown:
             if (!projectionPiece) {
-                placePiece(piece, board, setBoard);
-                setCurrentPiece(randomPiece());
+                placePiece(piece);
+                global.setCurrentPiece(global.nextPiece);
+                if (collisionPoint(global.nextPiece.destruct())) {
+                    return global.setGameOver(true);
+                }
+                global.setNextPiece(randomPiece());
             }
             return;
         case CollisionTypes.moveDown: // moves down into border: do nothing
@@ -101,91 +122,25 @@ export const movePiece = (
         case CollisionTypes.moveRight: // moves right into border: do nothing
             return;
         case CollisionTypes.spinDown: // rotate down: move up if possible
-            movePiece(
-                piece,
-                setCurrentPiece,
-                board,
-                setBoard,
-                MoveTypes.up,
-                stackSize + 1
-            );
-            movePiece(
-                piece,
-                setCurrentPiece,
-                board,
-                setBoard,
-                MoveTypes.spin,
-                stackSize + 1
-            );
-
+            movePiece(piece, MoveTypes.up, stackSize + 1);
+            movePiece(piece, MoveTypes.spin, stackSize + 1);
             return;
         case CollisionTypes.spinLeft: // rotate left: move right if possible
-            movePiece(
-                piece,
-                setCurrentPiece,
-                board,
-                setBoard,
-                MoveTypes.right,
-                stackSize + 1
-            );
-            movePiece(
-                piece,
-                setCurrentPiece,
-                board,
-                setBoard,
-                MoveTypes.spin,
-                stackSize + 1
-            );
-
+            movePiece(piece, MoveTypes.right, stackSize + 1);
+            movePiece(piece, MoveTypes.spin, stackSize + 1);
             return;
         case CollisionTypes.spinRight: // rotate right: move left if possible
-            movePiece(
-                piece,
-                setCurrentPiece,
-                board,
-                setBoard,
-                MoveTypes.left,
-                stackSize + 1
-            );
-            movePiece(
-                piece,
-                setCurrentPiece,
-                board,
-                setBoard,
-                MoveTypes.spin,
-                stackSize + 1
-            );
-
+            movePiece(piece, MoveTypes.left, stackSize + 1);
+            movePiece(piece, MoveTypes.spin, stackSize + 1);
             return;
         case CollisionTypes.spinUp: // rotate top: move bottom if possible
-            movePiece(
-                piece,
-                setCurrentPiece,
-                board,
-                setBoard,
-                MoveTypes.down,
-                stackSize + 1
-            );
-            movePiece(
-                piece,
-                setCurrentPiece,
-                board,
-                setBoard,
-                MoveTypes.spin,
-                stackSize + 1
-            );
-
+            movePiece(piece, MoveTypes.down, stackSize + 1);
+            movePiece(piece, MoveTypes.spin, stackSize + 1);
             return;
     }
     movePieceUnsafe(piece, direction); // no collisions: do action
 };
 
-/**
- * Unsafely moves a Tetris Piece in a given direction, forcing its coordinates to change. Should only be called when the future piece does not collide with anything.
- * @param piece Tetris Piece to move
- * @param direction Direction in which to move the Tetris Piece
- * @returns Moved Tetris Piece
- */
 export const movePieceUnsafe = (
     piece: TetrisPiece,
     direction: string
@@ -233,54 +188,51 @@ export const movePieceUnsafe = (
     return piece;
 };
 
-export const checkTetris = (
-    board: Block[],
-    setBoard: React.Dispatch<React.SetStateAction<Block[]>>
-): void => {
+export const checkTetris = (): void => {
     const blockY = new Map<number, number>();
-    board.forEach((block) => {
+    global.board.forEach((block) => {
         blockY.set(block.y, (blockY.get(block.y) || 0) + 1);
     });
     const deleteY: number[] = [];
     blockY.forEach((count, y) => {
         if (count === 10) deleteY.push(y);
     });
-    setBoard(
-        board.filter((block) => {
+    global.setBoard(
+        global.board.filter((block) => {
             if (deleteY.includes(block.y)) return false;
-            if (block.y < Math.min(...deleteY)) block.y += deleteY.length;
+            let layersAbove = 0;
+            deleteY.forEach(
+                (layer) => (layersAbove += layer > block.y ? 1 : 0)
+            );
+            block.y += layersAbove;
             return true;
         })
     );
+    increaseScore(deleteY.length);
 };
 
-export const placePiece = (
-    piece: TetrisPiece,
-    board: Block[],
-    setBoard: React.Dispatch<React.SetStateAction<Block[]>>
-): void => {
+const increaseScore = (linesCleared: number) => {
+    let updatedScore = global.score;
+    if (linesCleared === 1) updatedScore += 40;
+    if (linesCleared === 2) updatedScore += 100;
+    if (linesCleared === 3) updatedScore += 300;
+    if (linesCleared === 4) updatedScore += 1200;
+    global.setScore(updatedScore);
+};
+
+export const placePiece = (piece: TetrisPiece): void => {
     piece.destruct().forEach((block) => {
-        board.push(block);
+        global.board.push(block);
     });
-    checkTetris(board, setBoard);
+    checkTetris();
 };
 
-/**
- * Determines whether a piece moven in a specific direction collides with the border or other pieces
- * @param piece
- * @param board
- * @param direction
- */
-export const willColide = (
-    piece: TetrisPiece,
-    board: Block[],
-    direction: string
-): string => {
+export const willColide = (piece: TetrisPiece, direction: string): string => {
     const futureBlocks = movePieceUnsafe(
         clone<TetrisPiece>(piece),
         direction
     ).destruct();
-    const point = collisionPoint(board, futureBlocks);
+    const point = collisionPoint(futureBlocks);
     if (point) {
         if (direction === MoveTypes.left) return CollisionTypes.moveLeft;
         if (direction === MoveTypes.right) return CollisionTypes.moveRight;
@@ -303,7 +255,7 @@ export const willColide = (
     return CollisionTypes.none;
 };
 
-const collisionPoint = (board: Block[], blocks: Block[]): Point | null => {
+const collisionPoint = (blocks: Block[]): Point | null => {
     for (let blocksIndex = 0; blocksIndex < blocks.length; blocksIndex++) {
         const block = blocks[blocksIndex];
         // Collision with border
@@ -312,8 +264,12 @@ const collisionPoint = (board: Block[], blocks: Block[]): Point | null => {
         if (block.x > tetris.cols - 1) return { x: tetris.cols, y: block.y };
         if (block.y > tetris.rows - 1) return { x: block.x, y: tetris.rows };
         // Collision with other blocks
-        for (let boardIndex = 0; boardIndex < board.length; boardIndex++) {
-            const boardBlock = board[boardIndex];
+        for (
+            let boardIndex = 0;
+            boardIndex < global.board.length;
+            boardIndex++
+        ) {
+            const boardBlock = global.board[boardIndex];
             if (boardBlock.x === block.x && boardBlock.y === block.y)
                 return { x: block.x, y: block.y };
         }
@@ -321,131 +277,89 @@ const collisionPoint = (board: Block[], blocks: Block[]): Point | null => {
     return null;
 };
 
-interface HandleParams {
-    ctx: CanvasRenderingContext2D;
-    heldCtx: CanvasRenderingContext2D;
-    nextCtx: CanvasRenderingContext2D;
-    time: number;
-    previousDownMove: React.MutableRefObject<number>;
-    frame: number;
-    currentPiece: TetrisPiece;
-    setCurrentPiece: React.Dispatch<React.SetStateAction<TetrisPiece>>;
-    heldPiece: TetrisPiece | undefined;
-    setHeldPiece: React.Dispatch<React.SetStateAction<TetrisPiece | undefined>>;
-    nextPiece: TetrisPiece;
-    setNextPiece: React.Dispatch<React.SetStateAction<TetrisPiece>>;
-    board: Block[];
-    setBoard: React.Dispatch<React.SetStateAction<Block[]>>;
-    input: UserInput;
-    fallInterval: number;
-    framesPerKeyHandle: number;
-    keyPressFrameDelay: number;
-    projectionOpacity: number;
-}
+const holdPiece = () => {
+    if (global.heldPiece) {
+        const currentPiece = global.currentPiece;
+        global.setCurrentPiece(global.heldPiece.moveTo(3, 0));
+        global.setHeldPiece(currentPiece);
+    } else {
+        global.setHeldPiece(global.currentPiece);
+        global.setCurrentPiece(randomPiece());
+    }
+};
 
-/**
- * Handles the flow of the game including constantly moving the current piece down and moving the current piece based on the current state of the input object
- * @param parameters
- * @param parameters.time
- */
-export const handlePieces = ({
-    ctx,
-    heldCtx,
-    nextCtx,
-    time,
-    previousDownMove,
-    frame,
-    currentPiece,
-    setCurrentPiece,
-    heldPiece,
-    setHeldPiece,
-    nextPiece,
-    setNextPiece,
-    input,
-    board,
-    setBoard,
-    fallInterval,
-    framesPerKeyHandle,
-    keyPressFrameDelay,
-    projectionOpacity,
-}: HandleParams) => {
-    clearCanvas(ctx);
-    drawGrid(ctx);
+const pauseGame = () => {
+    global.setPaused(!global.paused);
+};
 
-    if (time - previousDownMove.current > fallInterval) {
-        previousDownMove.current = time;
-        movePiece(
-            currentPiece,
-            setCurrentPiece,
-            board,
-            setBoard,
-            MoveTypes.autoDown
-        );
+const restartGame = () => {
+    if (global.restarting || global.gameOver) {
+        global.setRestarting(false);
+        global.setPaused(false);
+        global.setGameOver(false);
+        global.setBoard([]);
+        global.setCurrentPiece(randomPiece());
+        global.setHeldPiece(undefined);
+        global.setNextPiece(randomPiece());
+        global.setScore(0);
+    } else {
+        global.setRestarting(true);
+    }
+};
+
+export const handlePieces = (params: HandleParams) => {
+    global = params;
+
+    clearCanvas(global.ctx);
+    clearCanvas(global.nextCtx);
+    clearCanvas(global.heldCtx);
+
+    drawGrid(global.ctx);
+
+    if (global.time - global.previousDownMove.current > global.fallInterval) {
+        global.previousDownMove.current = global.time;
+        movePiece(global.currentPiece, MoveTypes.autoDown);
     }
 
-    drawPiece(ctx, currentPiece, 1);
+    drawPiece(global.ctx, global.currentPiece, 1); // current piece
+    drawPieceSquare(global.nextCtx, global.nextPiece);
+    if (global.heldPiece) drawPieceSquare(global.heldCtx, global.heldPiece);
     drawPiece(
-        ctx,
+        global.ctx,
         (() => {
-            const projectionPiece = clone(currentPiece);
-            movePiece(
-                projectionPiece,
-                setCurrentPiece,
-                board,
-                setBoard,
-                MoveTypes.drop,
-                0,
-                true
-            );
+            const projectionPiece = clone(global.currentPiece);
+            movePiece(projectionPiece, MoveTypes.drop, 0, true);
             return projectionPiece;
         })(),
-        projectionOpacity
+        global.projectionOpacity
+    ); // current piece projection
+    drawBoard(global.ctx, global.board); // board
+
+    handleInput(
+        global.frame,
+        global.framesPerKeyHandle,
+        global.keyPressFrameDelay,
+        global.input,
+        {
+            moveRight: global.paused
+                ? undefined
+                : () => movePiece(global.currentPiece, MoveTypes.right),
+            moveLeft: global.paused
+                ? undefined
+                : () => movePiece(global.currentPiece, MoveTypes.left),
+            moveDown: global.paused
+                ? undefined
+                : () => movePiece(global.currentPiece, MoveTypes.down),
+            spin: global.paused
+                ? undefined
+                : () => movePiece(global.currentPiece, MoveTypes.spin),
+            drop: global.paused
+                ? undefined
+                : () => movePiece(global.currentPiece, MoveTypes.drop),
+            hold: global.paused ? undefined : () => holdPiece(),
+            pause: () => pauseGame(),
+            restart: () => restartGame(),
+            cancelRestart: () => global.setRestarting(false),
+        }
     );
-    drawBoard(ctx, board);
-
-    drawPiece(nextCtx, nextPiece, 1);
-
-    handleInput(frame, framesPerKeyHandle, keyPressFrameDelay, input, {
-        moveRight: () =>
-            movePiece(
-                currentPiece,
-                setCurrentPiece,
-                board,
-                setBoard,
-                MoveTypes.right
-            ),
-        moveLeft: () =>
-            movePiece(
-                currentPiece,
-                setCurrentPiece,
-                board,
-                setBoard,
-                MoveTypes.left
-            ),
-        moveDown: () =>
-            movePiece(
-                currentPiece,
-                setCurrentPiece,
-                board,
-                setBoard,
-                MoveTypes.down
-            ),
-        spin: () =>
-            movePiece(
-                currentPiece,
-                setCurrentPiece,
-                board,
-                setBoard,
-                MoveTypes.spin
-            ),
-        drop: () =>
-            movePiece(
-                currentPiece,
-                setCurrentPiece,
-                board,
-                setBoard,
-                MoveTypes.drop
-            ),
-    });
-    // If one of the lagging keys are pressed, set future handling frame if its time to begin handling
 };

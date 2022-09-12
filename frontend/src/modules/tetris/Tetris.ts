@@ -1,5 +1,11 @@
 import { Block, TetrisPiece, pieces } from './TetrisPiece';
-import { drawGrid, drawPiece, drawBoard, clearCanvas } from './TetrisRenderer';
+import {
+    drawGrid,
+    drawPiece,
+    drawPieceSquare,
+    drawBoard,
+    clearCanvas,
+} from './TetrisRenderer';
 import { randomPiece, movePiece, handlePieces } from './TetrisHandler';
 import { initialInput, setupKeyBinds } from './InputHandler';
 import type { UserInput } from './InputHandler';
@@ -9,6 +15,7 @@ export {
     pieces,
     drawGrid,
     drawPiece,
+    drawPieceSquare,
     drawBoard,
     clearCanvas,
     randomPiece,

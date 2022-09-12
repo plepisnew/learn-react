@@ -50,6 +50,7 @@ export const StyledGamePanel = styled.div`
         margin: 5px;
         display: flex;
         flex-direction: column;
+        justify-content: center;
         align-items: center;
     }
     canvas {
@@ -61,13 +62,26 @@ export const StyledGamePanel = styled.div`
         font-size: 18px;
         font-weight: 600;
     }
+
+    .overlay-span {
+        position: absolute;
+        font-size: 30px;
+        font-weight: 600;
+    }
+
+    .score-span {
+        position: absolute;
+        font-size: 20px;
+        font-weight: 600;
+        top: -3px;
+    }
 `;
 
 export const StyledConfigPanel = styled.div`
     & {
         flex: 1;
         background: ${redColor};
-        border-left: 2px solid ${darkRedColor};
+        border-left: 4px solid ${darkRedColor};
         padding: 5px;
     }
 

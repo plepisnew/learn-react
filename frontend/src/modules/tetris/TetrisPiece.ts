@@ -65,6 +65,12 @@ export class TetrisPiece {
         return this;
     }
 
+    moveTo(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+        return this;
+    }
+
     destruct(): Block[] {
         const destructedBlocks: Block[] = [];
         this.blocks.forEach((block) => {

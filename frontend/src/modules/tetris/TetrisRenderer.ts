@@ -1,5 +1,6 @@
+import clone from 'util/clone';
 import { tetris } from 'util/constants';
-import { Block, TetrisPiece } from './TetrisPiece';
+import { Block, TetrisPiece, colors } from './TetrisPiece';
 
 /**
  * Module for handling Tetris piece rendering to Canvas
@@ -27,6 +28,14 @@ export const drawPiece = (
     opacity: number
 ) => {
     piece.draw(context, opacity);
+};
+
+export const drawPieceSquare = (
+    context: CanvasRenderingContext2D,
+    piece: TetrisPiece
+) => {
+    const coords = piece.blocks[0].fill === colors.cyan ? 0 : 1 / 2;
+    clone(piece).moveTo(coords, coords).draw(context, 1);
 };
 
 export const drawBoard = (
